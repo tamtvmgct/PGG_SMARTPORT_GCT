@@ -12,6 +12,10 @@ import rateLimit from "express-rate-limit";
 // ── APP SETUP ──────────────────────────────────────────────
 const app = express();
 app.use(express.static(__dirname));
+// Dòng này bảo Server: "Nếu ai vào trang chủ, hãy đưa họ đến file index.html"
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 const ALLOWED_ORIGINS = String(process.env.PGG_ALLOWED_ORIGINS || "")
   .split(",").map(s => s.trim()).filter(Boolean);
 
