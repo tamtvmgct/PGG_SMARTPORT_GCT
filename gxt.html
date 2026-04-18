@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GXT Hub — Remote Gate Registration</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --bg-base:      #0a1628;
+            --bg-surface:   #0d1e35;
+            --bg-card:      #111f38;
+            --bg-deep:      #050d1a;
+            --border-dim:   rgba(59,130,246,0.15);
+            --border-glow:  rgba(59,130,246,0.4);
+            --text-primary: #e2eaf8;
+            --text-muted:   #7a91b5;
+            --text-dim:     #3d5278;
+            --blue-vivid:   #3b82f6;
+            --green-vivid:  #22c55e;
+            --red-vivid:    #ef4444;
+            --orange-vivid: #f97316;
+            --font-tech:    'Rajdhani', sans-serif;
+            --font-body:    'Inter', sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg-base);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* ===== LOGIN OVERLAY ===== */
+        #loginOverlay {
+            position: fixed; inset: 0; z-index: 9999;
+            background: rgba(5,13,26,0.9); backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .login-card {
+            width: 340px; background: var(--bg-surface);
+            border: 1px solid var(--border-glow); border-radius: 16px;
+            padding: 30px; display: flex; flex-direction: column; gap: 16px;
+            box-shadow: 0 0 40px rgba(59,130,246,0.15);
+        }
+        .login-logo {
+            width: 48px; height: 48px; border-radius: 12px;
+            background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; color: white; margin: 0 auto;
+        }
+        .login-title {
+            text-align: center; font-family: var(--font-tech);
+            font-size: 20px; font-weight: 700; letter-spacing: 0.1em;
+            color: var(--blue-vivid); text-transform: uppercase;
+        }
+        .sys-input {
+            width: 100%; background: var(--bg-deep); border: 1px solid var(--border-dim);
+            padding: 12px 14px; border-radius: 8px; color: white;
+            font-family: var(--font-body); font-size: 14px; outline: none;
+        }
+        .sys-input:focus { border-color: var(--blue-vivid); }
+        .sys-btn {
+            width: 100%; padding: 12px; border: none; border-radius: 8px;
+            background: var(--blue-vivid); color: white;
+            font-family: var(--font-tech); font-size: 15px; font-weight: 700;
+            letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .sys-btn:hover { background: #2563eb; }
+
+        /* ===== MAIN FRAME ===== */
+        .gxt-frame {
+            width: 800px; max-width: 95vw;
+            background: var(--bg-surface); border: 1px solid var(--border-dim);
+            border-radius: 16px; display: flex; flex-direction: column;
+            overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            display: none; /* hidden until login */
+        }
+
+        .header {
+            padding: 20px; background: var(--bg-deep); border-bottom: 1px solid var(--border-dim);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand i { font-size: 24px; color: var(--blue-vivid); }
+        .title { font-family: var(--font-tech); font-size: 20px; font-weight: 700; color: white; letter-spacing: 0.05em; }
+        .subtitle { font-size: 11px; font-weight: 600; color: var(--text-dim); letter-spacing: 0.1em; text-transform: uppercase; }
+
+        .connection-status {
+            display: flex; align-items: center; gap: 8px;
+            padding: 6px 12px; border: 1px solid rgba(239,68,68,0.3);
+            border-radius: 20px; background: rgba(239,68,68,0.1);
+            color: var(--red-vivid); font-family: var(--font-tech); font-size: 12px; font-weight: 700;
+        }
+        .connection-status.connected {
+            border-color: rgba(34,197,94,0.3); background: rgba(34,197,94,0.1); color: var(--green-vivid);
+        }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+
+        /* ===== FORM GRID ===== */
+        .content { padding: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        
+        .section-title {
+            grid-column: 1 / -1; font-family: var(--font-tech); font-size: 13px; font-weight: 700;
+            color: var(--blue-vivid); letter-spacing: 0.1em; text-transform: uppercase;
+            border-bottom: 1px solid var(--border-dim); padding-bottom: 8px; margin-bottom: -10px;
+        }
+
+        .field { display: flex; flex-direction: column; gap: 6px; }
+        .field-label { font-size: 11px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.05em; text-transform: uppercase; }
+        .input-box {
+            padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border-dim);
+            background: var(--bg-deep); color: white;
+            font-family: var(--font-tech); font-size: 16px; font-weight: 600;
+            outline: none; transition: all 0.2s;
+        }
+        .input-box:focus { border-color: var(--blue-vivid); box-shadow: 0 0 10px rgba(59,130,246,0.1); }
+        .input-box::placeholder { color: var(--text-dim); }
+        select.input-box { cursor: pointer; appearance: none; }
+
+        /* ISO Badge inside input relative wrapper */
+        .iso-wrap { position: relative; }
+        .iso-badge {
+            position: absolute; right: 10px; top: 10px;
+            padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+            display: none;
+        }
+        .iso-wrap.valid .iso-badge { display: block; background: rgba(34,197,94,0.15); color: var(--green-vivid); border: 1px solid rgba(34,197,94,0.3); }
+        .iso-wrap.invalid .iso-badge { display: block; background: rgba(239,68,68,0.15); color: var(--red-vivid); border: 1px solid rgba(239,68,68,0.3); }
+
+        .footer { padding: 20px 24px; background: var(--bg-deep); border-top: 1px solid var(--border-dim); display: flex; justify-content: flex-end; }
+        .btn-submit {
+            padding: 14px 32px; border-radius: 10px; border: none;
+            background: linear-gradient(135deg, #1d4ed8, #3b82f6); color: white;
+            font-family: var(--font-tech); font-size: 15px; font-weight: 700;
+            letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer;
+            box-shadow: 0 0 15px rgba(59,130,246,0.3); transition: all 0.2s;
+        }
+        .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 0 20px rgba(59,130,246,0.5); }
+        .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .success-overlay {
+            position: absolute; inset: 0; background: rgba(5,13,26,0.9); z-index: 100;
+            display: none; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+        }
+        .s-icon { font-size: 64px; color: var(--green-vivid); animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes pop { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+        .s-text { font-family: var(--font-tech); font-size: 24px; font-weight: 700; color: white; letter-spacing: 0.1em; }
+
+        /* ===== MOBILE RESPONSIVE ===== */
+        @media (max-width: 600px) {
+            .gxt-frame { 
+                width: 100vw; height: 100vh; border-radius: 0; border: none; 
+                max-width: none; overflow-y: auto;
+            }
+            .content { 
+                grid-template-columns: 1fr; padding: 15px; gap: 16px; 
+            }
+            .header { padding: 12px 15px; }
+            .title { font-size: 16px; }
+            .footer { padding: 15px; }
+            .btn-submit { width: 100%; font-size: 16px; padding: 18px; }
+            
+            .login-card { width: 90vw; padding: 20px; }
+            
+            .input-box { font-size: 18px; padding: 14px; } /* To nút cho mobile */
+            .field-label { font-size: 12px; margin-bottom: 4px; }
+        }
+
+        /* ===== SMART SEARCH DROPDOWN (V6.1) ===== */
+        .searchable-select {
+            position: relative;
+        }
+        .search-trigger {
+            width: 100%; padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border-dim);
+            background: var(--bg-deep); color: white; display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; font-family: var(--font-tech); font-size: 16px; font-weight: 600;
+        }
+        .search-list {
+            position: absolute; top: calc(100% + 5px); left: 0; right: 0;
+            background: var(--bg-surface); border: 1px solid var(--blue-vivid); border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 500;
+            display: none; flex-direction: column; overflow: hidden;
+        }
+        .search-list.show { display: flex; }
+        .search-input-wrap { padding: 10px; border-bottom: 1px solid var(--border-dim); background: var(--bg-deep); }
+        .search-input-wrap input {
+            width: 100%; background: transparent; border: 1px solid var(--blue-vivid); border-radius: 4px;
+            padding: 8px; color: white; outline: none; font-size: 14px;
+        }
+        .search-items { max-height: 200px; overflow-y: auto; }
+        .search-item {
+            padding: 10px 14px; cursor: pointer; transition: 0.2s; font-size: 14px;
+        }
+        .search-item:hover { background: rgba(59,130,246,0.2); color: var(--blue-vivid); }
+        .search-item.selected { background: var(--blue-vivid); color: white; }
+    </style>
+</head>
+<body>
+
+    <!-- ===== LOGIN ===== -->
+    <div id="loginOverlay">
+        <div class="login-card">
+            <div class="login-logo"><i class="fas fa-satellite-dish"></i></div>
+            <div class="login-title">GXT Remote Login</div>
+            <p style="text-align:center;font-size:12px;color:var(--text-muted);margin-top:-10px;">Chỉ dành cho Đại lý vận tải / Chủ xe</p>
+            <input type="text" id="username" class="sys-input" placeholder="Tên đăng nhập (vd: gxt)" value="gxt">
+            <input type="password" id="password" class="sys-input" placeholder="Mật khẩu" value="gxt123">
+            <button class="sys-btn" onclick="login()">Kết nối Server</button>
+            <div id="loginErr" style="color:var(--red-vivid);font-size:12px;text-align:center;"></div>
+        </div>
+    </div>
+
+    <!-- ===== GXT APP ===== -->
+    <div class="gxt-frame" id="appFrame">
+        <div class="header">
+            <div class="brand">
+                <i class="fas fa-truck-fast"></i>
+                <div>
+                    <div class="title">GXT ENTRY HUB</div>
+                    <div class="subtitle">Vehicle Dossier Pre-Registration</div>
+                </div>
+            </div>
+            <div class="connection-status" id="wsStatus">
+                <div class="status-dot"></div> <span id="wsText">DISCONNECTED</span>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="section-title">1. Thông tin vận tải</div>
+            <div class="field">
+                <label class="field-label">Biển số xe kéo (*)</label>
+                <input type="text" id="truckPlate" class="input-box" placeholder="51H-123.45" style="text-transform:uppercase;">
+            </div>
+            <div class="field">
+                <label class="field-label">Tài xế (Tùy chọn)</label>
+                <input type="text" id="driverName" class="input-box" placeholder="Nguyễn Văn A">
+            </div>
+            <div class="field">
+                <label class="field-label">CCCD / GPLX Tài xế</label>
+                <input type="text" id="driverId" class="input-box" placeholder="079012345678">
+            </div>
+
+            <div class="section-title">2. Phân loại tác vụ</div>
+            <div class="field">
+                <label class="field-label">Loại giao dịch (*)</label>
+                <select id="opType" class="input-box">
+                    <option value="EXPORT">Hạ Lãi (Hàng Xuất)</option>
+                    <option value="IMPORT">Lấy Hàng (Hàng Nhập)</option>
+                    <option value="EMPTY_RETURN">Trả Rỗng</option>
+                    <option value="EMPTY_PICKUP">Cấp Rỗng</option>
+                </select>
+            </div>
+            <div class="field">
+                <label class="field-label">Kích cỡ / Loại Cont (*)</label>
+                <select id="size" class="input-box">
+                    <option value="20GP">20' General Purpose (20GP)</option>
+                    <option value="40GP">40' General Purpose (40GP)</option>
+                    <option value="40HC">40' High Cube (40HC)</option>
+                    <option value="45G0">45' High Cube (45G0)</option>
+                </select>
+            </div>
+
+            <div class="section-title">3. Dữ liệu Container</div>
+            <div class="field">
+                <label class="field-label">Số Container (ISO 6346)</label>
+                <div class="iso-wrap" id="isoWrap">
+                    <input type="text" id="containerId" class="input-box" placeholder="NYKU4801820" style="width:100%;text-transform:uppercase;">
+                    <span class="iso-badge" id="isoTxt">VALID</span>
+                </div>
+            </div>
+            <div class="field">
+                <label class="field-label">Trọng lượng Gross (Tấn)</label>
+                <div style="display:flex;gap:10px;">
+                    <input type="number" id="grossWeight" class="input-box" placeholder="28.75" step="0.01" style="flex:1;">
+                    <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);cursor:pointer;">
+                        <input type="checkbox" id="vgmVerified" checked> VGM Đã cân
+                    </label>
+                </div>
+            </div>
+
+            <div class="section-title">4. Thông tin Tàu / Booking</div>
+            <div class="field">
+                <label class="field-label">Tên tàu vận chuyển (Smart Search 6.1)</label>
+                <div class="searchable-select" id="vesselSelect">
+                    <div class="search-trigger" onclick="toggleSearch('vesselList')">
+                        <span id="vesselLabel">[CHƯA XÁC ĐỊNH]</span>
+                        <i class="fas fa-search" style="font-size:12px;opacity:0.5;"></i>
+                    </div>
+                    <div class="search-list" id="vesselList">
+                        <div class="search-input-wrap">
+                            <input type="text" placeholder="Gõ tên tàu để lọc (vd: MSC, ONE)..." oninput="filterSearch('vesselList', this.value)">
+                        </div>
+                        <div class="search-items" id="vesselItems">
+                            <!-- Items will be injected -->
+                        </div>
+                    </div>
+                    <input type="hidden" id="vesselName" value="">
+                </div>
+            </div>
+            <div class="field">
+                <label class="field-label">Số Booking / D.O</label>
+                <input type="text" id="bookingNo" class="input-box" placeholder="SGNG77869900" style="text-transform:uppercase;">
+            </div>
+
+            <div class="section-title">5. Đặc tính Hàng hóa & Pháp lý</div>
+            <div class="field">
+                <label class="field-label">Hãng Tàu (Shipping Line)</label>
+                <select id="shippingLine" class="input-box">
+                    <option value="">[Chọn Hãng Tàu]</option>
+                    <option value="ONE">ONE</option>
+                    <option value="MSC">MSC</option>
+                    <option value="CMA CGM">CMA CGM</option>
+                    <option value="MAERSK">MAERSK</option>
+                    <option value="ZIM">ZIM LINE</option>
+                </select>
+            </div>
+            <div class="field">
+                <label class="field-label">Số Chì (Seal Number) (*)</label>
+                <input type="text" id="sealNo" class="input-box" placeholder="Ví dụ: ONE1234567" style="text-transform:uppercase;">
+            </div>
+            <div class="field">
+                <label class="field-label">Cảng Dỡ Hàng (POD)</label>
+                <input type="text" id="pod" class="input-box" placeholder="Ví dụ: SGSIN / USLAX" style="text-transform:uppercase;">
+            </div>
+            <div class="field">
+                <label class="field-label">Phân loại hàng (Commodity)</label>
+                <select id="commodity" class="input-box">
+                    <option value="DRY: Hàng Khô">DRY: Hàng Khô Tiêu Chuẩn</option>
+                    <option value="REEFER: Hàng Lạnh">REEFER: Hàng Lạnh (R/F)</option>
+                    <option value="IMDG: Hàng Nguy Hiểm">IMDG: Hàng Nguy Hiểm</option>
+                    <option value="OOG: Hàng Quá Khổ">OOG: Hàng Quá Khổ Phi Tiêu Chuẩn</option>
+                </select>
+            </div>
+
+            <div class="section-title">6. Thông tin Hải Quan & e-Port</div>
+            <div class="field">
+                <label class="field-label">Mã Lệnh e-Port (Lệnh Nhận/Giao) (*)</label>
+                <input type="text" id="orderNo" class="input-box" placeholder="Ví dụ: 2604xxx" style="color:#f97316;">
+            </div>
+            <div class="field">
+                <label class="field-label">Số Tờ Khai Hải Quan</label>
+                <input type="text" id="customsNo" class="input-box" placeholder="Ví dụ: 308xxxx" style="text-transform:uppercase;">
+            </div>
+            <div class="field" style="grid-column: 1 / -1;">
+                <label class="field-label">Mô tả Hàng Hóa (Cargo Description)</label>
+                <input type="text" id="cargoDesc" class="input-box" placeholder="Ví dụ: TẤM LÁT SÀN ĐÃ LẮP GHÉP" style="text-transform:uppercase;">
+            </div>
+
+        </div>
+
+        <div class="footer">
+            <button class="btn-submit" id="btnSubmit" onclick="submitDossier()" disabled>
+                <i class="fas fa-paper-plane" style="margin-right:8px;"></i> Truyền dữ liệu e-Port
+            </button>
+        </div>
+
+        <!-- Success Feedback -->
+        <div class="success-overlay" id="successScreen">
+            <i class="fas fa-circle-check s-icon"></i>
+            <div class="s-text">HỒ SƠ ĐÃ TRUYỀN VỀ CẢNG</div>
+            <div style="font-size:13px;color:var(--text-muted);">Mã giao dịch: <span id="txId" style="color:var(--blue-vivid);font-family:var(--font-tech);font-size:16px;">---</span></div>
+            <button class="sys-btn" style="width:auto;padding:10px 40px;margin-top:20px;" onclick="resetForm()">Tạo hồ sơ mới</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = "http://localhost:3000/api";
+        const WS_URL   = "ws://localhost:3000";
+        
+        let token = "";
+        let ws = null;
+        let isoValid = false;
+
+        const $ = id => document.getElementById(id);
+
+        /* ===== AUTHENTICATION ===== */
+        async function login() {
+            $('loginErr').innerText = 'Đang kết nối...';
+            try {
+                const res = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: $('username').value, password: $('password').value })
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    token = data.token;
+                    $('loginOverlay').style.display = 'none';
+                    $('appFrame').style.display = 'flex';
+                    initWebSocket();
+                } else {
+                    $('loginErr').innerText = data.error || 'Đăng nhập thất bại';
+                }
+            } catch (err) {
+                $('loginErr').innerText = 'Không thể kết nối Server: ' + err.message;
+            }
+        }
+
+        /* ===== WEBSOCKET ===== */
+        function initWebSocket() {
+            ws = new WebSocket(WS_URL);
+            
+            ws.onopen = () => {
+                ws.send(JSON.stringify({ type: 'HELLO', token, app: 'GXT' }));
+                $('wsStatus').className = 'connection-status connected';
+                $('wsText').innerText = 'LINK ACTIVE';
+            };
+
+            ws.onclose = () => {
+                $('wsStatus').className = 'connection-status';
+                $('wsText').innerText = 'DISCONNECTED';
+                setTimeout(initWebSocket, 3000); // Tự động reconnect sau 3s
+            };
+
+            ws.onerror = (e) => console.error("WS Error", e);
+        }
+
+        /* ===== ISO 6346 VALIDATOR ===== */
+        $('containerId').addEventListener('input', function(e) {
+            let val = e.target.value.replace(/[\s\-]/g, '').toUpperCase();
+            e.target.value = val;
+            
+            const wrap = $('isoWrap');
+            const txt = $('isoTxt');
+            
+            if (val.length === 0) { wrap.className = 'iso-wrap'; isoValid = false; checkForm(); return; }
+            if (val.length !== 11) { wrap.className = 'iso-wrap invalid'; txt.innerText = 'INVALID'; isoValid = false; checkForm(); return; }
+
+            // Math check
+            if (!/^[A-Z]{4}\d{7}$/.test(val)) { wrap.className = 'iso-wrap invalid'; txt.innerText = 'FORMAT ERR'; isoValid = false; checkForm(); return; }
+            
+            const vals = "0123456789A BCDEFGHIJK LMNOPQRSTU VWXYZ".replace(/ /g, "");
+            let sum = 0;
+            for (let i = 0; i < 10; i++) {
+                let v = vals.indexOf(val[i]);
+                if (v >= 11) v++; 
+                sum += v * Math.pow(2, i);
+            }
+            const check = sum % 11 % 10;
+            
+            if (check === parseInt(val[10])) {
+                wrap.className = 'iso-wrap valid'; txt.innerText = 'ISO VALID'; isoValid = true;
+            } else {
+                wrap.className = 'iso-wrap invalid'; txt.innerText = 'ISO ERR'; isoValid = false;
+            }
+            checkForm();
+        });
+
+        $('truckPlate').addEventListener('input', checkForm);
+
+        function checkForm() {
+            const plate = $('truckPlate').value.trim();
+            $('btnSubmit').disabled = !(plate.length >= 5 && (isoValid || $('containerId').value.length === 0));
+        }
+
+        /* ===== SUBMIT DATA TO SERVER ===== */
+        async function submitDossier() {
+            const btn = $('btnSubmit');
+            btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ĐANG TRUYỀN...';
+
+            const plate = $('truckPlate').value.trim().toUpperCase();
+            const containerId = $('containerId').value.trim().toUpperCase();
+            
+            try {
+                // 1. Nếu có Container ID, Đăng ký Container lên Server trước
+                let registeredContId = "";
+                if (containerId) {
+                    const contPayload = {
+                        containerId,
+                        size: $('size').value,
+                        fullEmpty: $('opType').value.startsWith('EMPTY') ? 'E' : 'F',
+                        grossWeight: parseFloat($('grossWeight').value) || 0,
+                        vgmVerified: $('vgmVerified').checked,
+                        vesselName: $('vesselName').value,
+                        bookingNo: $('bookingNo').value,
+                        shippingLine: $('shippingLine').value,
+                        sealNo: $('sealNo').value,
+                        pod: $('pod').value,
+                        commodity: $('commodity').value,
+                        orderNo: $('orderNo').value,
+                        customsNo: $('customsNo').value,
+                        cargoDesc: $('cargoDesc').value,
+                        operationType: $('opType').value,
+                        truckPlate: plate,
+                        driverName: $('driverName').value,
+                        driverId: $('driverId').value
+                    };
+                    
+                    const res = await fetch(`${API_BASE}/containers`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify(contPayload)
+                    });
+                    const result = await res.json();
+                    if (!result.ok) throw new Error(result.error);
+                    registeredContId = result.container.containerId;
+                }
+
+                // 2. Gắn event JOB_CREATED cho xe kéo qua WebSocket
+                const eventId = "JOB_" + Date.now().toString(36).toUpperCase();
+                ws.send(JSON.stringify({
+                    type: 'EVENT',
+                    event: {
+                        type: 'JOB_CREATED',
+                        eventId: eventId,
+                        plate: plate,
+                        job: {
+                            operationType: $('opType').value,
+                            containerId: registeredContId,
+                            driver: $('driverName').value
+                        }
+                    }
+                }));
+
+                // Thành công
+                setTimeout(() => {
+                    $('txId').innerText = eventId;
+                    $('successScreen').style.display = 'flex';
+                }, 500);
+
+            } catch (err) {
+                alert("Lỗi truyền dữ liệu: " + err.message);
+                btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Truyền dữ liệu e-Port';
+            }
+        }
+
+        function resetForm() {
+            $('successScreen').style.display = 'none';
+            $('truckPlate').value = '';
+            $('containerId').value = '';
+            $('isoWrap').className = 'iso-wrap';
+            $('vesselName').value = '';
+            $('bookingNo').value = '';
+            $('grossWeight').value = '';
+            $('btnSubmit').disabled = true;
+            $('btnSubmit').innerHTML = '<i class="fas fa-paper-plane" style="margin-right:8px;"></i> Truyền dữ liệu e-Port';
+        }
+        /* ===== V6.1 SMART SEARCH LOGIC ===== */
+        const VESSEL_DATA = [
+            { id: "", text: "[CHƯA XÁC ĐỊNH]" },
+            { id: "ONE MILANO", text: "ONE MILANO (ONE)" },
+            { id: "MSC ALINA", text: "MSC ALINA (MSC)" },
+            { id: "CMA CGM LOUVRE", text: "CMA CGM LOUVRE (CMA)" },
+            { id: "MAERSK ESSEN", text: "MAERSK ESSEN (MAERSK)" },
+            { id: "ZIM SHANGHAI", text: "ZIM SHANGHAI (ZIM)" },
+            { id: "EVER GIVEN", text: "EVER GIVEN (EVERGREEN)" },
+            { id: "COSC SHIPPING", text: "COSCO SHIPPING (COSCO)" }
+        ];
+
+        function toggleSearch(id) {
+            $(id).classList.toggle('show');
+            if ($(id).classList.contains('show')) {
+                const input = $(id).querySelector('input');
+                setTimeout(() => input.focus(), 50);
+            }
+        }
+
+        function filterSearch(listId, query) {
+            renderSearchItems(query);
+        }
+
+        function renderSearchItems(query = "") {
+            const wrap = $('vesselItems');
+            wrap.innerHTML = '';
+            const filtered = VESSEL_DATA.filter(it => it.text.toUpperCase().includes(query.toUpperCase()));
+            
+            filtered.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'search-item';
+                div.innerText = item.text;
+                div.onclick = () => selectVessel(item);
+                wrap.appendChild(div);
+            });
+        }
+
+        function selectVessel(item) {
+            $('vesselName').value = item.id;
+            $('vesselLabel').innerText = item.text;
+            $('vesselList').classList.remove('show');
+        }
+
+        // Initialize v6.1 items
+        renderSearchItems();
+
+        // Close search lists when clicking outside
+        window.addEventListener('click', (e) => {
+            if (!e.target.closest('.searchable-select')) {
+                document.querySelectorAll('.search-list').forEach(l => l.classList.remove('show'));
+            }
+        });
+
+    </script>
+</body>
+</html>

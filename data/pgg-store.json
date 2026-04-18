@@ -1,0 +1,815 @@
+{
+  "version": 2,
+  "persistedAt": 1776410871303,
+  "jobsByPlate": [
+    [
+      "51C-99999",
+      {
+        "operationType": "EXPORT",
+        "containerId": "",
+        "driver": "",
+        "plate": "51C-99999"
+      }
+    ]
+  ],
+  "stateByPlate": [
+    [
+      "51C-99999",
+      {
+        "status": "JOB_CREATED",
+        "lastEventId": "JOB_MO2GD5Q0",
+        "updatedAt": 1776402806368
+      }
+    ]
+  ],
+  "complianceByPlate": [
+    [
+      "51C-99999",
+      {
+        "plate": "51C-99999",
+        "points": {
+          "bookingDO": "PENDING",
+          "customs": "PENDING",
+          "vgm": "PENDING",
+          "portFee": "PENDING",
+          "seal": "PENDING",
+          "gateBarcode": "PENDING"
+        },
+        "score": 0,
+        "approved": false,
+        "policy": "SMART_AUTO",
+        "updatedAt": 1776402806368
+      }
+    ]
+  ],
+  "processedEvents": [
+    [
+      "JOB_MO2GD5Q0",
+      1776402806368
+    ]
+  ],
+  "containerRegistry": [
+    [
+      "AUTOSTRESS20",
+      {
+        "containerId": "AUTOSTRESS20",
+        "isoValid": false,
+        "size": "40HC",
+        "grossWeight": 25,
+        "maxGrossWeight": 30.48,
+        "vgmVerified": false,
+        "fullEmpty": "FULL",
+        "condition": "A",
+        "vesselName": "MSC ALINA",
+        "voyageNo": "",
+        "carrier": "",
+        "etb": null,
+        "etd": null,
+        "cot": null,
+        "bookingNo": "",
+        "blNo": "",
+        "customsDecNo": "",
+        "deliveryOrderNo": "",
+        "operationType": "EXPORT",
+        "consignee": "",
+        "portOfDischarge": "",
+        "portOfDestination": "",
+        "truckPlate": "51C-00020",
+        "romoocNo": "",
+        "driverName": "",
+        "yardPosition": {
+          "block": "A",
+          "bay": 1,
+          "row": 1,
+          "tier": 1
+        },
+        "status": "REGISTERED",
+        "registeredAt": 1776410345682,
+        "updatedAt": 1776410345696
+      }
+    ],
+    [
+      "AUTOSTRESS21",
+      {
+        "containerId": "AUTOSTRESS21",
+        "isoValid": false,
+        "size": "40HC",
+        "grossWeight": 25,
+        "maxGrossWeight": 30.48,
+        "vgmVerified": false,
+        "fullEmpty": "FULL",
+        "condition": "A",
+        "vesselName": "MSC ALINA",
+        "voyageNo": "",
+        "carrier": "",
+        "etb": null,
+        "etd": null,
+        "cot": null,
+        "bookingNo": "",
+        "blNo": "",
+        "customsDecNo": "",
+        "deliveryOrderNo": "",
+        "operationType": "EXPORT",
+        "consignee": "",
+        "portOfDischarge": "",
+        "portOfDestination": "",
+        "truckPlate": "51C-00021",
+        "romoocNo": "",
+        "driverName": "",
+        "yardPosition": {
+          "block": "A",
+          "bay": 1,
+          "row": 1,
+          "tier": 2
+        },
+        "status": "REGISTERED",
+        "registeredAt": 1776410345729,
+        "updatedAt": 1776410345750
+      }
+    ],
+    [
+      "AUTOSTRESS22",
+      {
+        "containerId": "AUTOSTRESS22",
+        "isoValid": false,
+        "size": "40HC",
+        "grossWeight": 25,
+        "maxGrossWeight": 30.48,
+        "vgmVerified": false,
+        "fullEmpty": "FULL",
+        "condition": "A",
+        "vesselName": "MSC ALINA",
+        "voyageNo": "",
+        "carrier": "",
+        "etb": null,
+        "etd": null,
+        "cot": null,
+        "bookingNo": "",
+        "blNo": "",
+        "customsDecNo": "",
+        "deliveryOrderNo": "",
+        "operationType": "EXPORT",
+        "consignee": "",
+        "portOfDischarge": "",
+        "portOfDestination": "",
+        "truckPlate": "51C-00022",
+        "romoocNo": "",
+        "driverName": "",
+        "yardPosition": {
+          "block": "A",
+          "bay": 1,
+          "row": 1,
+          "tier": 3
+        },
+        "status": "REGISTERED",
+        "registeredAt": 1776410345764,
+        "updatedAt": 1776410345773
+      }
+    ],
+    [
+      "AUTOSTRESS23",
+      {
+        "containerId": "AUTOSTRESS23",
+        "isoValid": false,
+        "size": "40HC",
+        "grossWeight": 25,
+        "maxGrossWeight": 30.48,
+        "vgmVerified": false,
+        "fullEmpty": "FULL",
+        "condition": "A",
+        "vesselName": "MSC ALINA",
+        "voyageNo": "",
+        "carrier": "",
+        "etb": null,
+        "etd": null,
+        "cot": null,
+        "bookingNo": "",
+        "blNo": "",
+        "customsDecNo": "",
+        "deliveryOrderNo": "",
+        "operationType": "EXPORT",
+        "consignee": "",
+        "portOfDischarge": "",
+        "portOfDestination": "",
+        "truckPlate": "51C-00023",
+        "romoocNo": "",
+        "driverName": "",
+        "yardPosition": {
+          "block": "A",
+          "bay": 1,
+          "row": 1,
+          "tier": 4
+        },
+        "status": "REGISTERED",
+        "registeredAt": 1776410345783,
+        "updatedAt": 1776410345791
+      }
+    ],
+    [
+      "AUTOSTRESS24",
+      {
+        "containerId": "AUTOSTRESS24",
+        "isoValid": false,
+        "size": "40HC",
+        "grossWeight": 25,
+        "maxGrossWeight": 30.48,
+        "vgmVerified": false,
+        "fullEmpty": "FULL",
+        "condition": "A",
+        "vesselName": "MSC ALINA",
+        "voyageNo": "",
+        "carrier": "",
+        "etb": null,
+        "etd": null,
+        "cot": null,
+        "bookingNo": "",
+        "blNo": "",
+        "customsDecNo": "",
+        "deliveryOrderNo": "",
+        "operationType": "EXPORT",
+        "consignee": "",
+        "portOfDischarge": "",
+        "portOfDestination": "",
+        "truckPlate": "51C-00024",
+        "romoocNo": "",
+        "driverName": "",
+        "yardPosition": {
+          "block": "A",
+          "bay": 1,
+          "row": 1,
+          "tier": 5
+        },
+        "status": "REGISTERED",
+        "registeredAt": 1776410345800,
+        "updatedAt": 1776410345807
+      }
+    ],
+    [
+      "AUTOSTRESS25",
+      {
+        "containerId": "AUTOSTRESS25",
+        "isoValid": false,
+        "size": "40HC",
+        "grossWeight": 25,
+        "maxGrossWeight": 30.48,
+        "vgmVerified": false,
+        "fullEmpty": "FULL",
+        "condition": "A",
+        "vesselName": "MSC ALINA",
+        "voyageNo": "",
+        "carrier": "",
+        "etb": null,
+        "etd": null,
+        "cot": null,
+        "bookingNo": "",
+        "blNo": "",
+        "customsDecNo": "",
+        "deliveryOrderNo": "",
+        "operationType": "EXPORT",
+        "consignee": "",
+        "portOfDischarge": "",
+        "portOfDestination": "",
+        "truckPlate": "51C-00025",
+        "romoocNo": "",
+        "driverName": "",
+        "yardPosition": {
+          "block": "A",
+          "bay": 1,
+          "row": 2,
+          "tier": 1
+        },
+        "status": "REGISTERED",
+        "registeredAt": 1776410345816,
+        "updatedAt": 1776410345826
+      }
+    ],
+    [
+      "AUTOSTRESS26",
+      {
+        "containerId": "AUTOSTRESS26",
+        "isoValid": false,
+        "size": "40HC",
+        "grossWeight": 25,
+        "maxGrossWeight": 30.48,
+        "vgmVerified": false,
+        "fullEmpty": "FULL",
+        "condition": "A",
+        "vesselName": "MSC ALINA",
+        "voyageNo": "",
+        "carrier": "",
+        "etb": null,
+        "etd": null,
+        "cot": null,
+        "bookingNo": "",
+        "blNo": "",
+        "customsDecNo": "",
+        "deliveryOrderNo": "",
+        "operationType": "EXPORT",
+        "consignee": "",
+        "portOfDischarge": "",
+        "portOfDestination": "",
+        "truckPlate": "51C-00026",
+        "romoocNo": "",
+        "driverName": "",
+        "yardPosition": {
+          "block": "A",
+          "bay": 1,
+          "row": 2,
+          "tier": 2
+        },
+        "status": "REGISTERED",
+        "registeredAt": 1776410345841,
+        "updatedAt": 1776410345852
+      }
+    ],
+    [
+      "AUTOSTRESS27",
+      {
+        "containerId": "AUTOSTRESS27",
+        "isoValid": false,
+        "size": "40HC",
+        "grossWeight": 25,
+        "maxGrossWeight": 30.48,
+        "vgmVerified": false,
+        "fullEmpty": "FULL",
+        "condition": "A",
+        "vesselName": "MSC ALINA",
+        "voyageNo": "",
+        "carrier": "",
+        "etb": null,
+        "etd": null,
+        "cot": null,
+        "bookingNo": "",
+        "blNo": "",
+        "customsDecNo": "",
+        "deliveryOrderNo": "",
+        "operationType": "EXPORT",
+        "consignee": "",
+        "portOfDischarge": "",
+        "portOfDestination": "",
+        "truckPlate": "51C-00027",
+        "romoocNo": "",
+        "driverName": "",
+        "yardPosition": {
+          "block": "A",
+          "bay": 1,
+          "row": 2,
+          "tier": 3
+        },
+        "status": "REGISTERED",
+        "registeredAt": 1776410345861,
+        "updatedAt": 1776410345869
+      }
+    ],
+    [
+      "AUTOSTRESS28",
+      {
+        "containerId": "AUTOSTRESS28",
+        "isoValid": false,
+        "size": "40HC",
+        "grossWeight": 25,
+        "maxGrossWeight": 30.48,
+        "vgmVerified": false,
+        "fullEmpty": "FULL",
+        "condition": "A",
+        "vesselName": "MSC ALINA",
+        "voyageNo": "",
+        "carrier": "",
+        "etb": null,
+        "etd": null,
+        "cot": null,
+        "bookingNo": "",
+        "blNo": "",
+        "customsDecNo": "",
+        "deliveryOrderNo": "",
+        "operationType": "EXPORT",
+        "consignee": "",
+        "portOfDischarge": "",
+        "portOfDestination": "",
+        "truckPlate": "51C-00028",
+        "romoocNo": "",
+        "driverName": "",
+        "yardPosition": {
+          "block": "A",
+          "bay": 1,
+          "row": 2,
+          "tier": 4
+        },
+        "status": "REGISTERED",
+        "registeredAt": 1776410345877,
+        "updatedAt": 1776410345885
+      }
+    ],
+    [
+      "AUTOSTRESS29",
+      {
+        "containerId": "AUTOSTRESS29",
+        "isoValid": false,
+        "size": "40HC",
+        "grossWeight": 25,
+        "maxGrossWeight": 30.48,
+        "vgmVerified": false,
+        "fullEmpty": "FULL",
+        "condition": "A",
+        "vesselName": "MSC ALINA",
+        "voyageNo": "",
+        "carrier": "",
+        "etb": null,
+        "etd": null,
+        "cot": null,
+        "bookingNo": "",
+        "blNo": "",
+        "customsDecNo": "",
+        "deliveryOrderNo": "",
+        "operationType": "EXPORT",
+        "consignee": "",
+        "portOfDischarge": "",
+        "portOfDestination": "",
+        "truckPlate": "51C-00029",
+        "romoocNo": "",
+        "driverName": "",
+        "yardPosition": {
+          "block": "A",
+          "bay": 1,
+          "row": 2,
+          "tier": 5
+        },
+        "status": "REGISTERED",
+        "registeredAt": 1776410345894,
+        "updatedAt": 1776410345901
+      }
+    ]
+  ],
+  "yardSlots": [
+    [
+      "A-01-01-01",
+      {
+        "containerId": "AUTOSTRESS20",
+        "placedAt": 1776410345696
+      }
+    ],
+    [
+      "A-01-01-02",
+      {
+        "containerId": "AUTOSTRESS21",
+        "placedAt": 1776410345750
+      }
+    ],
+    [
+      "A-01-01-03",
+      {
+        "containerId": "AUTOSTRESS22",
+        "placedAt": 1776410345773
+      }
+    ],
+    [
+      "A-01-01-04",
+      {
+        "containerId": "AUTOSTRESS23",
+        "placedAt": 1776410345791
+      }
+    ],
+    [
+      "A-01-01-05",
+      {
+        "containerId": "AUTOSTRESS24",
+        "placedAt": 1776410345807
+      }
+    ],
+    [
+      "A-01-02-01",
+      {
+        "containerId": "AUTOSTRESS25",
+        "placedAt": 1776410345826
+      }
+    ],
+    [
+      "A-01-02-02",
+      {
+        "containerId": "AUTOSTRESS26",
+        "placedAt": 1776410345852
+      }
+    ],
+    [
+      "A-01-02-03",
+      {
+        "containerId": "AUTOSTRESS27",
+        "placedAt": 1776410345869
+      }
+    ],
+    [
+      "A-01-02-04",
+      {
+        "containerId": "AUTOSTRESS28",
+        "placedAt": 1776410345885
+      }
+    ],
+    [
+      "A-01-02-05",
+      {
+        "containerId": "AUTOSTRESS29",
+        "placedAt": 1776410345901
+      }
+    ]
+  ],
+  "bypassRequests": [],
+  "auditLogs": [
+    {
+      "id": "audit_1776238932740_h7ffu3",
+      "kind": "LOGIN_SUCCESS",
+      "at": 1776238932740,
+      "userId": "admin.1",
+      "role": "ADMIN",
+      "ip": "::1"
+    },
+    {
+      "id": "audit_1776240745088_8lx9bn",
+      "kind": "LOGIN_SUCCESS",
+      "at": 1776240745088,
+      "userId": "gxt.1",
+      "role": "GXT",
+      "ip": "::1"
+    },
+    {
+      "id": "audit_1776241304385_zck6z9",
+      "kind": "LOGIN_SUCCESS",
+      "at": 1776241304385,
+      "userId": "gxt.1",
+      "role": "GXT",
+      "ip": "::1"
+    },
+    {
+      "id": "audit_1776402701381_fhjc3c",
+      "kind": "LOGIN_FAILED",
+      "at": 1776402701381,
+      "username": "gxtgxt",
+      "ip": "::1"
+    },
+    {
+      "id": "audit_1776402714424_qkgpqp",
+      "kind": "LOGIN_SUCCESS",
+      "at": 1776402714424,
+      "userId": "gxt.1",
+      "role": "GXT",
+      "ip": "::1"
+    },
+    {
+      "id": "audit_1776402806373_gp5d6p",
+      "kind": "EVENT_ACCEPTED",
+      "at": 1776402806373,
+      "plate": "51C-99999",
+      "type": "JOB_CREATED",
+      "eventId": "JOB_MO2GD5Q0",
+      "actor": {
+        "userId": "gxt.1",
+        "role": "GXT",
+        "app": "GXT"
+      }
+    },
+    {
+      "id": "audit_1776402903908_6894rz",
+      "kind": "LOGIN_FAILED",
+      "at": 1776402903908,
+      "username": "gntgnt",
+      "ip": "::1"
+    },
+    {
+      "id": "audit_1776402925962_gye6lf",
+      "kind": "LOGIN_SUCCESS",
+      "at": 1776402925962,
+      "userId": "gnt.1",
+      "role": "GNT",
+      "ip": "::1"
+    },
+    {
+      "id": "audit_1776404122832_pyimxg",
+      "kind": "LOGIN_SUCCESS",
+      "at": 1776404122832,
+      "userId": "gnt.1",
+      "role": "GNT",
+      "ip": "::1"
+    },
+    {
+      "id": "audit_1776410329828_phcs3y",
+      "kind": "LOGIN_SUCCESS",
+      "at": 1776410329828,
+      "userId": "admin.1",
+      "role": "ADMIN",
+      "ip": "::1"
+    },
+    {
+      "id": "audit_1776410329850_j2fu86",
+      "kind": "LOGIN_SUCCESS",
+      "at": 1776410329850,
+      "userId": "gxt.1",
+      "role": "GXT",
+      "ip": "::1"
+    },
+    {
+      "id": "audit_1776410345683_e0obh9",
+      "kind": "CONTAINER_REGISTERED",
+      "at": 1776410345683,
+      "containerId": "AUTOSTRESS20",
+      "by": "gxt.1"
+    },
+    {
+      "id": "audit_1776410345706_cisqox",
+      "kind": "YARD_AUTO_ASSIGN",
+      "at": 1776410345706,
+      "containerId": "AUTOSTRESS20",
+      "position": "A-01-01-01",
+      "by": "admin.1"
+    },
+    {
+      "id": "audit_1776410345729_8w36ab",
+      "kind": "CONTAINER_REGISTERED",
+      "at": 1776410345729,
+      "containerId": "AUTOSTRESS21",
+      "by": "gxt.1"
+    },
+    {
+      "id": "audit_1776410345755_1tzn55",
+      "kind": "YARD_AUTO_ASSIGN",
+      "at": 1776410345755,
+      "containerId": "AUTOSTRESS21",
+      "position": "A-01-01-02",
+      "by": "admin.1"
+    },
+    {
+      "id": "audit_1776410345764_7ian3r",
+      "kind": "CONTAINER_REGISTERED",
+      "at": 1776410345764,
+      "containerId": "AUTOSTRESS22",
+      "by": "gxt.1"
+    },
+    {
+      "id": "audit_1776410345774_27h1t8",
+      "kind": "YARD_AUTO_ASSIGN",
+      "at": 1776410345774,
+      "containerId": "AUTOSTRESS22",
+      "position": "A-01-01-03",
+      "by": "admin.1"
+    },
+    {
+      "id": "audit_1776410345783_6fmmlg",
+      "kind": "CONTAINER_REGISTERED",
+      "at": 1776410345783,
+      "containerId": "AUTOSTRESS23",
+      "by": "gxt.1"
+    },
+    {
+      "id": "audit_1776410345792_p685kj",
+      "kind": "YARD_AUTO_ASSIGN",
+      "at": 1776410345792,
+      "containerId": "AUTOSTRESS23",
+      "position": "A-01-01-04",
+      "by": "admin.1"
+    },
+    {
+      "id": "audit_1776410345800_icj2qk",
+      "kind": "CONTAINER_REGISTERED",
+      "at": 1776410345800,
+      "containerId": "AUTOSTRESS24",
+      "by": "gxt.1"
+    },
+    {
+      "id": "audit_1776410345807_rj4rr8",
+      "kind": "YARD_AUTO_ASSIGN",
+      "at": 1776410345807,
+      "containerId": "AUTOSTRESS24",
+      "position": "A-01-01-05",
+      "by": "admin.1"
+    },
+    {
+      "id": "audit_1776410345816_gwgnuo",
+      "kind": "CONTAINER_REGISTERED",
+      "at": 1776410345816,
+      "containerId": "AUTOSTRESS25",
+      "by": "gxt.1"
+    },
+    {
+      "id": "audit_1776410345828_dlgcmc",
+      "kind": "YARD_AUTO_ASSIGN",
+      "at": 1776410345828,
+      "containerId": "AUTOSTRESS25",
+      "position": "A-01-02-01",
+      "by": "admin.1"
+    },
+    {
+      "id": "audit_1776410345841_h3vsqa",
+      "kind": "CONTAINER_REGISTERED",
+      "at": 1776410345841,
+      "containerId": "AUTOSTRESS26",
+      "by": "gxt.1"
+    },
+    {
+      "id": "audit_1776410345853_ntqf40",
+      "kind": "YARD_AUTO_ASSIGN",
+      "at": 1776410345853,
+      "containerId": "AUTOSTRESS26",
+      "position": "A-01-02-02",
+      "by": "admin.1"
+    },
+    {
+      "id": "audit_1776410345861_nkfkvd",
+      "kind": "CONTAINER_REGISTERED",
+      "at": 1776410345861,
+      "containerId": "AUTOSTRESS27",
+      "by": "gxt.1"
+    },
+    {
+      "id": "audit_1776410345870_kmmeu1",
+      "kind": "YARD_AUTO_ASSIGN",
+      "at": 1776410345870,
+      "containerId": "AUTOSTRESS27",
+      "position": "A-01-02-03",
+      "by": "admin.1"
+    },
+    {
+      "id": "audit_1776410345877_1y10em",
+      "kind": "CONTAINER_REGISTERED",
+      "at": 1776410345877,
+      "containerId": "AUTOSTRESS28",
+      "by": "gxt.1"
+    },
+    {
+      "id": "audit_1776410345886_9uz3ui",
+      "kind": "YARD_AUTO_ASSIGN",
+      "at": 1776410345886,
+      "containerId": "AUTOSTRESS28",
+      "position": "A-01-02-04",
+      "by": "admin.1"
+    },
+    {
+      "id": "audit_1776410345894_085fkl",
+      "kind": "CONTAINER_REGISTERED",
+      "at": 1776410345894,
+      "containerId": "AUTOSTRESS29",
+      "by": "gxt.1"
+    },
+    {
+      "id": "audit_1776410345902_x2pwn6",
+      "kind": "YARD_AUTO_ASSIGN",
+      "at": 1776410345902,
+      "containerId": "AUTOSTRESS29",
+      "position": "A-01-02-05",
+      "by": "admin.1"
+    }
+  ],
+  "users": [
+    {
+      "userId": "pims.op",
+      "username": "pims",
+      "role": "PIMS",
+      "name": "PIMS Operator",
+      "passwordHash": "442e1212b31b25c75bfe6ea3a91cfc68333d514e932d9ec1dacc426347542496",
+      "passwordSalt": "fb754ccb7247865f09dd30981fe3656a",
+      "passwordAlgo": "pbkdf2_sha256_100000"
+    },
+    {
+      "userId": "supervisor.1",
+      "username": "supervisor",
+      "role": "SUPERVISOR",
+      "name": "Duty Supervisor",
+      "passwordHash": "af461feb2a28e6a63ac26fab7d3bb5755d9a17ad3f2c0d97026889bec329fdce",
+      "passwordSalt": "957f2c9608ee9a51b7c5a85ebed6049e",
+      "passwordAlgo": "pbkdf2_sha256_100000"
+    },
+    {
+      "userId": "admin.1",
+      "username": "admin",
+      "role": "ADMIN",
+      "name": "Port Admin",
+      "passwordHash": "d2a4421f75fff593c9f914c59d7d70f46ef17dd9535e3f31955e9fc19d761131",
+      "passwordSalt": "1e770d134907d50d64f809564765a10a",
+      "passwordAlgo": "pbkdf2_sha256_100000"
+    },
+    {
+      "userId": "gxt.1",
+      "username": "gxt",
+      "role": "GXT",
+      "name": "GXT User",
+      "passwordHash": "3bdca20e94fd2633c1fd14b6ac2252621e1fa1717a73a7a7c30d7230b9df1a8b",
+      "passwordSalt": "1ff374f485db48d3ce9b13512f9bee37",
+      "passwordAlgo": "pbkdf2_sha256_100000"
+    },
+    {
+      "userId": "gnt.1",
+      "username": "gnt",
+      "role": "GNT",
+      "name": "GNT Operator",
+      "passwordHash": "f39af085a7358330231a9bdfe2775208aab1832577ab22eafbfdb2760afa2be2",
+      "passwordSalt": "e99800ca4c4b1486d2db7cfb110343e3",
+      "passwordAlgo": "pbkdf2_sha256_100000"
+    },
+    {
+      "userId": "dispatch.1",
+      "username": "dispatch",
+      "role": "DISPATCHER",
+      "name": "Yard Dispatcher",
+      "passwordHash": "bc70634b5c66faf1da08e26e2a72192fea04e8e4d19e4246cb6395a3246d6c91",
+      "passwordSalt": "b352b4f20d94090154cf9c65dec63576",
+      "passwordAlgo": "pbkdf2_sha256_100000"
+    }
+  ]
+}

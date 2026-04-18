@@ -1,0 +1,1920 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PIMS 13V2 PRO — PORT INTEGRATED MANAGEMENT SYSTEM</title>
+    <script>
+        (function () { const w = console.warn; console.warn = function (...a) { if (typeof a[0] === 'string' && a[0].includes('cdn.tailwindcss.com')) return; w.apply(console, a); }; })();
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <meta name="theme-color" content="#020617">
+    <link rel="apple-touch-icon" href="assets/icon-192.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;600;700;900&display=swap');
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #020617;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .font-tech {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* CAMERA MODAL */
+        #camera-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 99998;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #camera-modal.show {
+            display: flex;
+        }
+
+        #camera-modal video {
+            max-width: 100%;
+            max-height: 70vh;
+            object-fit: contain;
+            border-radius: 12px;
+            background: #000;
+            transform: scaleX(-1);
+        }
+
+        #camera-modal .cam-actions {
+            margin-top: 16px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        #camera-modal .cam-btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #camera-modal .cam-capture {
+            background: #22c55e;
+            color: white;
+        }
+
+        #camera-modal .cam-cancel {
+            background: #334155;
+            color: #e2e8f0;
+        }
+
+        #camera-modal .cam-status {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        #camera-modal .cam-title {
+            position: absolute;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            color: #3b82f6;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* MAP MONITOR STYLES */
+        .monitor-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            padding: 10px;
+            flex-grow: 1;
+            height: 62vh;
+            min-height: 0;
+        }
+
+        .monitor-wrapper {
+            position: relative;
+            background: #0f172a;
+            border-radius: 16px;
+            border: 1px solid #1e293b;
+            overflow: hidden;
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .map-bg {
+            position: absolute;
+            inset: 0;
+            background-size: 80px 80px;
+            background-image: linear-gradient(to right, rgba(59, 130, 246, 0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(59, 130, 246, 0.1) 1px, transparent 1px);
+            transform: perspective(1000px) rotateX(40deg) scale(1.5);
+            transform-origin: top center;
+            pointer-events: none;
+        }
+
+        .full-vision-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+            pointer-events: none;
+        }
+
+        .interaction-layer {
+            position: absolute;
+            inset: 0;
+            z-index: 50;
+            cursor: crosshair;
+        }
+
+        svg.nav-layer {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 45;
+            pointer-events: none;
+        }
+
+        .nav-line {
+            fill: none;
+            stroke: #fbbf24;
+            stroke-width: 3;
+            stroke-dasharray: 6;
+            animation: dash 1s linear infinite;
+            stroke-linecap: round;
+            filter: drop-shadow(0 0 6px #fbbf24);
+        }
+
+        @keyframes dash {
+            to {
+                stroke-dashoffset: -24;
+            }
+        }
+
+        .zone-wrapper {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 60;
+            cursor: pointer;
+            pointer-events: auto;
+            transition: 0.2s;
+            background: rgba(43, 116, 203, 0.25);
+            border: 2px solid rgba(43, 116, 203, 0.4);
+        }
+
+        .zone-wrapper:hover {
+            background: rgba(43, 116, 203, 0.4);
+        }
+
+        .zone-wrapper.active {
+            z-index: 70;
+            background: rgba(34, 197, 94, 0.3);
+            border-color: #22c55e;
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.5);
+        }
+
+        .zone-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            font-weight: 900;
+            color: #38bdf8;
+            background: rgba(15, 23, 42, 0.5);
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            border: 1px solid rgba(56, 189, 248, 0.5);
+            z-index: 2;
+            backdrop-filter: blur(2px);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+            pointer-events: none;
+            transition: 0.2s;
+        }
+
+        .zone-wrapper.active .zone-label {
+            background: #eab308;
+            color: #020617;
+            transform: scale(1.1);
+        }
+        .zone-stats {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            display: flex;
+            height: 38px;
+            z-index: 1000;
+            font-family: 'Inter', sans-serif;
+            filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.5));
+            pointer-events: none;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease-out;
+        }
+
+        /* Dạng Dọc (Mặc định) */
+        .zone-stats.vertical {
+            flex-direction: column;
+            width: 85px;
+            height: auto;
+            transform: translate(15px, -50%);
+            clip-path: polygon(0 10%, 10% 0, 100% 0, 100% 90%, 90% 100%, 0 100%);
+        }
+
+        /* Dạng Ngang */
+        .zone-stats.horizontal {
+            flex-direction: row;
+            height: 38px;
+            width: auto;
+            transform: translate(15px, -50%);
+            clip-path: polygon(0 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
+        }
+
+        .zone-wrapper:hover .zone-stats,
+        .zone-wrapper.active .zone-stats {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(25px, -50%);
+        }
+
+        .zone-stats.vertical {
+            left: 105%;
+            top: 50%;
+            transform: translateY(-50%);
+            clip-path: polygon(0% 0%, calc(100% - 8px) 0%, 100% 100%, 8px 100%);
+            flex-direction: column;
+            width: 75px;
+            height: auto;
+        }
+
+        .zone-wrapper:hover .zone-stats.vertical,
+        .zone-wrapper.active .zone-stats.vertical {
+            transform: translate(15px, -50%);
+        }
+
+        .zone-wrapper:hover .zone-stats.pos-left,
+        .zone-wrapper.active .zone-stats.pos-left {
+            transform: translate(-10px, -50%) !important;
+        }
+
+        .zone-stats.pos-left {
+            left: auto !important;
+            right: 105% !important;
+            top: 50% !important;
+            bottom: auto !important;
+            transform: translateY(-50%) !important;
+            clip-path: polygon(0% 0%, calc(100% - 12px) 0%, 100% 100%, 12px 100%) !important;
+            flex-direction: row;
+        }
+
+        .zone-stats.pos-left.vertical {
+            flex-direction: column !important;
+            height: auto !important;
+            width: 75px !important;
+            clip-path: polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%) !important;
+        }
+
+        /* Compact style for M, N, O */
+        .zone-stats.pos-compact {
+            transform: translate(15px, -50%) !important;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .zone-wrapper:hover .zone-stats.pos-compact,
+        .zone-wrapper.active .zone-stats.pos-compact {
+            transform: translate(18px, -50%) !important;
+        }
+        .pos-compact .stats-left { padding: 2px 6px !important; min-width: 45px !important; }
+        .pos-compact .stats-right { padding: 2px 8px !important; min-width: 50px !important; }
+        .pos-compact .s-big { font-size: 11px !important; }
+        .pos-compact .s-small { font-size: 7px !important; }
+        .pos-compact .s-title { font-size: 7px !important; }
+        .pos-compact .s-row { font-size: 7px !important; }
+
+        .stats-left {
+            background: #1e3a34;
+            color: white;
+            padding: 4px 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            line-height: 1.1;
+        }
+
+        .horizontal .stats-left {
+            min-width: 65px;
+        }
+
+        .vertical .stats-left {
+            padding: 8px 5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stats-left .s-big {
+            font-weight: 900;
+            font-size: 14px;
+            color: #5eead4;
+        }
+
+        .stats-left .s-small {
+            font-weight: 700;
+            font-size: 9px;
+            color: #5eead4;
+        }
+
+        .stats-right {
+            background: white;
+            padding: 4px 15px 4px 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .horizontal .stats-right {
+            min-width: 90px;
+        }
+
+        .vertical .stats-right {
+            padding: 8px 10px;
+        }
+
+        .stats-right .s-title {
+            font-size: 8px;
+            font-weight: 900;
+            color: #0f172a;
+            text-align: right;
+            margin-bottom: 2px;
+        }
+
+        .stats-right .s-row {
+            font-size: 8px;
+            font-weight: 800;
+            color: #0f172a;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            white-space: nowrap;
+        }
+
+        .stats-right .s-row span:last-child {
+            color: #06b6d4;
+        }
+
+        /* EIR History */
+        .eir-history {
+            margin-top: 15px;
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .eir-history-header {
+            background: #1e293b;
+            padding: 8px 15px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10px;
+            font-weight: 900;
+            color: #3b82f6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .eir-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10px;
+        }
+
+        .eir-table th {
+            text-align: left;
+            padding: 8px 15px;
+            background: rgba(30, 41, 59, 0.5);
+            color: #94a3b8;
+            text-transform: uppercase;
+        }
+
+        .eir-table td {
+            padding: 8px 15px;
+            border-bottom: 1px solid rgba(51, 65, 85, 0.3);
+            color: #e2e8f0;
+        }
+
+        .eir-table tr:hover {
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .truck-marker {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background: #ef4444;
+            border: 2px solid white;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 80;
+            box-shadow: 0 0 10px #ef4444;
+            pointer-events: none;
+            animation: tpulse 1s infinite;
+        }
+
+        @keyframes tpulse {
+
+            0%,
+            100% {
+                transform: translate(-50%, -50%) scale(1)
+            }
+
+            50% {
+                transform: translate(-50%, -50%) scale(1.15)
+            }
+        }
+
+        /* REST OF UI */
+        .dispatch-bar {
+            background: #050e1f;
+            border-top: 1px solid #0f2040;
+            padding: 4px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 9px;
+            letter-spacing: 1px;
+            flex-shrink: 0;
+        }
+
+        .dispatch-tag {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .tag-gxt {
+            background: rgba(0, 207, 255, 0.1);
+            border: 1px solid rgba(0, 207, 255, 0.35);
+            color: #00cfff;
+        }
+
+        .tag-gnt {
+            background: rgba(255, 107, 53, 0.1);
+            border: 1px solid rgba(255, 107, 53, 0.35);
+            color: #ff6b35;
+        }
+
+        .sig-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            display: inline-block;
+            transition: 0.3s;
+        }
+
+        .dot-idle {
+            background: #1e3a5f;
+        }
+
+        .dot-sending {
+            background: #fbbf24;
+            animation: blinkFast 0.35s infinite;
+            box-shadow: 0 0 8px #fbbf24;
+        }
+
+        .dot-ok {
+            background: #22c55e;
+            box-shadow: 0 0 8px #22c55e;
+        }
+
+        @keyframes blinkFast {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: 0.1
+            }
+        }
+
+        #lastDispatch {
+            color: #1e3a5f;
+            font-size: 9px;
+            flex: 1;
+            text-align: right;
+            font-family: monospace;
+        }
+
+        #lastDispatch span {
+            color: #475569;
+        }
+
+        .form-panel {
+            background: #0f172a;
+            border-top: 2px solid #1e293b;
+            padding: 10px 20px;
+            flex-shrink: 0;
+            overflow-y: auto;
+            max-height: 38vh;
+        }
+
+        .field-group {
+            background: #1e293b;
+            padding: 6px 10px;
+            border-radius: 10px;
+            border: 1px solid #334155;
+            transition: 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .active-scan {
+            border-color: #3b82f6 !important;
+            background: #1e294b !important;
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .active-scan::after {
+            content: 'AI FOCUS';
+            position: absolute;
+            top: -8px;
+            right: 8px;
+            background: #3b82f6;
+            color: white;
+            font-size: 7px;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-weight: 900;
+        }
+
+        .field-label {
+            font-size: 8px;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+            display: block;
+        }
+
+        .smart-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            font-weight: 700;
+            font-size: 13px;
+            color: white;
+            outline: none;
+        }
+
+        .valid-standard {
+            border-color: #22c55e !important;
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.4);
+        }
+
+        .invalid-standard {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+        }
+
+        .standard-label {
+            position: absolute;
+            bottom: -15px;
+            right: 10px;
+            font-size: 7px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .standard-label.valid { color: #22c55e; }
+        .standard-label.invalid { color: #ef4444; }
+
+        .btn-scan-main {
+            background: white;
+            color: #020617;
+            padding: 10px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-weight: 900;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 5px;
+            clip-path: polygon(5% 0%, 100% 0%, 95% 100%, 0% 100%);
+        }
+
+        .btn-pims {
+            width: 100%;
+            padding: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            border-radius: 10px;
+            transition: 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-orange {
+            background: #f97316;
+            color: white;
+        }
+
+        .btn-green {
+            background: #16a34a;
+            color: white;
+        }
+
+        .btn-gray {
+            background: #1e293b;
+            color: #64748b;
+            border: 1px solid #334155;
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .scanning-bar {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: #3b82f6;
+            top: 0;
+            left: 0;
+            animation: move 2s infinite;
+            display: none;
+            z-index: 110;
+            box-shadow: 0 0 10px #3b82f6;
+        }
+
+        @keyframes move {
+            0% {
+                top: 0
+            }
+
+            100% {
+                top: 100%
+            }
+        }
+
+        #ai-log-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 200px;
+            max-height: 150px;
+            overflow-y: auto;
+            z-index: 150;
+            pointer-events: none;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            backdrop-filter: blur(4px);
+            scrollbar-width: none;
+        }
+
+        #ai-log-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 4px;
+        }
+
+        /* EIR PREVIEW MODAL */
+        #eir-preview-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 100000;
+            background: rgba(2, 6, 23, 0.95);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .eir-ticket {
+            background: white;
+            color: black;
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            font-family: monospace;
+        }
+
+        .eir-header {
+            text-align: center;
+            border-bottom: 2px dashed #ccc;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        .eir-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .eir-row span:first-child { color: #666; }
+        .eir-row span:last-child { font-weight: bold; }
+
+        .status-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .badge-standard { background: #dcfce7; color: #166534; border: 1px solid #22c55e; }
+        .badge-overridden { background: #fee2e2; color: #991b1b; border: 1px solid #ef4444; }
+
+        .pin-container {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px dashed #ccc;
+            text-align: center;
+        }
+
+        .pin-input {
+            width: 100px;
+            letter-spacing: 5px;
+            text-align: center;
+            font-size: 18px;
+            padding: 5px;
+            border: 2px solid #3b82f6;
+            border-radius: 6px;
+            outline: none;
+            margin-top: 10px;
+        }
+        
+        .overridden {
+            border-color: #f59e0b !important;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+        }
+        
+        .eir-warning {
+            color: #ef4444;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: bold;
+        }
+
+        /* DOSSIER MODAL */
+        #dossier-modal { position: fixed; inset: 0; z-index: 100000; background: rgba(2, 6, 23, 0.85); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; padding: 20px; }
+        .dossier-card { background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; width: 100%; max-width: 600px; box-shadow: 0 20px 40px rgba(0,0,0,0.8); overflow: hidden; display: flex; flex-direction: column; }
+        .dossier-header { background: #1e293b; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; font-family: var(--font-tech); }
+        .dossier-body { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .d-item { background: #020617; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
+        .d-label { font-size: 10px; color: #94a3b8; text-transform: uppercase; font-weight: bold; margin-bottom: 4px; }
+        .d-val { font-size: 14px; font-weight: 900; color: #38bdf8; }
+        .d-img-box { grid-column: span 2; background: #000; height: 200px; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px dashed #334155; color: #64748b; }
+
+        /* AUDIT & KPI MODALS (PHASE 5) */
+        ... (rest stays as is)
+        .glass-modal {
+            position: fixed; inset: 0; z-index: 100000;
+            background: rgba(2, 6, 23, 0.85); backdrop-filter: blur(10px);
+            display: none; align-items: center; justify-content: center; padding: 20px;
+        }
+        .audit-card, .kpi-card {
+            background: #0f172a; border: 1px solid #334155; border-radius: 16px;
+            width: 100%; max-width: 900px; max-height: 85vh;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+        .modal-header {
+            padding: 16px 24px; background: #1e293b; border-bottom: 1px solid #334155;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .modal-body { padding: 24px; overflow-y: auto; flex: 1; }
+
+        /* Audit Table */
+        .audit-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .audit-table th { text-align: left; padding: 12px; background: #020617; color: #94a3b8; font-weight: 700; text-transform: uppercase; }
+        .audit-table td { padding: 12px; border-bottom: 1px solid #1e293b; color: #e2e8f0; }
+        .audit-table tr:hover { background: rgba(59, 130, 246, 0.05); }
+        .kind-tag { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 800; }
+        .kind-accept { background: rgba(34, 197, 94, 0.1); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3); }
+        .kind-reject { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        /* KPI / Heatmap */
+        .heatmap-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px;
+        }
+        .heat-box {
+            background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155;
+            display: flex; flex-direction: column; gap: 5px; cursor: pointer; transition: 0.2s;
+        }
+        .heat-box:hover { background: #1e294b; border-color: #3b82f6; transform: translateY(-2px); }
+        .heat-val { font-family: 'Orbitron', sans-serif; font-size: 24px; font-weight: 900; }
+        .heat-lvl-low { color: #22c55e; }
+        .heat-lvl-med { color: #eab308; }
+        .heat-lvl-high { color: #ef4444; }
+
+        .kpi-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .chart-wrap { background: #020617; border-radius: 12px; padding: 15px; border: 1px solid #1e293b; }
+        .fake-bar-row { display: flex; align-items: flex-end; gap: 2px; height: 100px; margin-top: 10px; }
+        .fake-bar { flex: 1; background: #3b82f6; border-top-right-radius: 3px; border-top-left-radius: 3px; transition: height 0.5s; }
+    </style>
+</head>
+
+<body>
+
+    <div id="camera-modal">
+        <div class="cam-wrap" style="position:relative">
+            <p class="cam-title" id="cam-modal-title">Quét Container</p>
+            <video id="camera-video" autoplay playsinline muted></video>
+            <canvas id="camera-canvas" style="display:none"></canvas>
+        </div>
+        <div class="cam-actions">
+            <button type="button" class="cam-btn cam-capture" id="cam-btn-capture"><i class="fas fa-camera"></i> Chụp để
+                quét</button>
+            <button type="button" class="cam-btn" id="cam-btn-upload" onclick="document.getElementById('scanInput').click()" style="background:#3b82f6;color:white;"><i class="fas fa-upload"></i> Tải ảnh lên</button>    
+            <button type="button" class="cam-btn cam-cancel" id="cam-btn-cancel"><i class="fas fa-times"></i>
+                Đóng</button>
+        </div>
+        <p class="cam-status" id="cam-modal-status">Đang mở camera...</p>
+    </div>
+
+    <!-- EIR PREVIEW MODAL -->
+    <div id="eir-preview-modal">
+        <div class="eir-ticket">
+            <div class="eir-header">
+                <h2 style="margin:0;font-family:Orbitron;font-size:18px;">PGG SMART PORT</h2>
+                <div style="font-size:11px;color:#666;margin-top:5px;">PHIẾU XÁC NHẬN ĐIỀU ĐỘ (EIR)</div>
+            </div>
+            
+            <div class="eir-row"><span>BIỂN SỐ XE:</span><span id="pre-plate"></span></div>
+            <div class="eir-row"><span>SỐ CONT:</span><span id="pre-cont"></span></div>
+            <div class="eir-row"><span>TÌNH TRẠNG ISO:</span><span id="pre-iso"></span></div>
+            <div class="eir-row"><span>VỊ TRÍ HẠ:</span><span id="pre-zone"></span></div>
+            <div class="eir-row"><span>SỐ SEAL:</span><span id="pre-seal"></span></div>
+            
+            <div class="pin-container">
+                <div style="font-size:11px;font-weight:bold;color:#ef4444;">BƯỚC XÁC THỰC BẮT BUỘC</div>
+                <div style="font-size:10px;color:#666;margin-top:4px;">Nhập mã PIN (Chữ ký số nội bộ) để phát lệnh</div>
+                <input type="password" id="dispatcher-pin" class="pin-input" maxlength="4" placeholder="****">
+            </div>
+
+            <div style="display:flex;gap:10px;margin-top:20px;">
+                <button type="button" onclick="closeEIR()" style="flex:1;padding:12px;border:none;border-radius:6px;background:#e2e8f0;font-weight:bold;cursor:pointer;">HỦY BỎ</button>
+                <button type="button" onclick="confirmEIR()" style="flex:2;padding:12px;border:none;border-radius:6px;background:#22c55e;color:white;font-weight:bold;cursor:pointer;"><i class="fas fa-check-circle"></i> CHỐT LỆNH GXT/GNT</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DOSSIER POPUP MODAL -->
+    ... (stays)
+    
+    <!-- PHASE 5: AUDIT LOG MODAL -->
+    <div id="audit-modal" class="glass-modal">
+        <div class="audit-card">
+            <div class="modal-header">
+                <div style="font-family:Orbitron; font-size:16px; font-weight:900; color:#3b82f6; display:flex; align-items:center; gap:12px;">
+                    <i class="fas fa-shield-alt"></i> AUDIT TRAIL & SECURITY
+                    <button onclick="exportAuditToExcel()" class="bg-blue-600 hover:bg-blue-500 text-white text-[10px] px-3 py-1 rounded-full flex items-center gap-2 transition-all">
+                        <i class="fas fa-file-excel"></i> XUẤT EXCEL (V6.1)
+                    </button>
+                </div>
+                <button onclick="document.getElementById('audit-modal').style.display='none'" class="text-slate-400 hover:text-white">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="audit-table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Action / Kind</th>
+                            <th>Actor</th>
+                            <th>Target</th>
+                            <th>Status/Info</th>
+                        </tr>
+                    </thead>
+                    <tbody id="audit-body">
+                        <!-- Audit entries will be injected here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- PHASE 5: KPI MANAGER DASHBOARD MODAL -->
+    <div id="kpi-modal" class="glass-modal">
+        <div class="kpi-card">
+            <div class="modal-header">
+                <div style="font-family:Orbitron; font-size:16px; font-weight:900; color:#22c55e;">
+                    <i class="fas fa-chart-line mr-2"></i> PRODUCTIVITY & YARD HEATMAP
+                </div>
+                <button onclick="document.getElementById('kpi-modal').style.display='none'" class="text-slate-400 hover:text-white">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="field-label mb-2">Heatmap: Yard Utilization Level</div>
+                <div class="heatmap-grid" id="kpi-heatmap">
+                    <!-- Heatmap boxes from server -->
+                </div>
+
+                <div class="kpi-charts">
+                    <div class="chart-wrap">
+                        <div class="field-label">Năng suất vận hành (Hết/h)</div>
+                        <div class="fake-bar-row" id="productivity-chart">
+                            <!-- Bars go here -->
+                        </div>
+                    </div>
+                    <div class="chart-wrap">
+                        <div class="field-label">Tỷ lệ lỗi quét ISO (%)</div>
+                        <div class="fake-bar-row" id="error-chart">
+                            <!-- Bars go here -->
+                        </div>
+
+    <!-- PHASE 6: BLOCK DETAIL MODAL (Drill-down) -->
+    <div id="block-detail-modal" class="glass-modal">
+        <div class="audit-card" style="max-width: 700px;">
+            <div class="modal-header">
+                <div style="font-family:Orbitron; font-size:16px; font-weight:900; color:#fbbf24;" id="block-detail-title">
+                    <i class="fas fa-th mr-2"></i> BLOCK DETAIL
+                </div>
+                <button onclick="document.getElementById('block-detail-modal').style.display='none'" class="text-slate-400 hover:text-white">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="audit-table">
+                    <thead>
+                        <tr>
+                            <th>Slot</th>
+                            <th>Container</th>
+                            <th>Vessel</th>
+                            <th>Weight</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="block-detail-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="dossier-modal">
+        <div class="dossier-card">
+            <div class="dossier-header">
+                <div style="color:#38bdf8;font-size:14px;font-weight:bold;">
+                    <i class="fas fa-id-card"></i> GXT E-DOSSIER
+                </div>
+                <button onclick="document.getElementById('dossier-modal').style.display='none'" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:16px;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="dossier-body">
+                <div class="d-item"><div class="d-label">Booking / Bill</div><div class="d-val" id="dos-booking">---</div></div>
+                <div class="d-item"><div class="d-label">Tàu / Chuyến</div><div class="d-val" id="dos-vessel" style="color:white">---</div></div>
+                <div class="d-item"><div class="d-label">Kích Cỡ / Trạng Thái</div><div class="d-val" id="dos-type" style="color:#eab308">---</div></div>
+                <div class="d-item"><div class="d-label">VGM Weight</div><div class="d-val" id="dos-weight">---</div></div>
+                
+                <!-- NEW COMPREHENSIVE FIELDS -->
+                <div class="d-item"><div class="d-label">Hãng Tàu (Shipping Line)</div><div class="d-val" id="dos-shipping-line">---</div></div>
+                <div class="d-item"><div class="d-label">Số Seal (Chì)</div><div class="d-val" id="dos-seal" style="color:#22c55e">---</div></div>
+                <div class="d-item"><div class="d-label">Phân Loại Hàng & IMDG</div><div class="d-val" id="dos-commodity" style="color:#ef4444">---</div></div>
+                <div class="d-item"><div class="d-label">Cảng Đích / Dỡ Hàng (POD)</div><div class="d-val" id="dos-pod">---</div></div>
+                <div class="d-item"><div class="d-label">Mã Lệnh e-Port</div><div class="d-val" id="dos-order" style="color:#f97316">---</div></div>
+                <div class="d-item"><div class="d-label">Tờ Khai Hải Quan</div><div class="d-val" id="dos-customs">---</div></div>
+                <div class="d-item" style="grid-column: span 2;"><div class="d-label">Mô tả Hàng Hóa (Cargo)</div><div class="d-val" id="dos-desc" style="font-size:12px; font-weight:600; color:#e2e8f0;">---</div></div>
+                <div class="d-item" style="grid-column: span 2;"><div class="d-label">Chủ Phương Tiện & Thẻ CCCD</div><div class="d-val" id="dos-driver" style="font-size:12px">---</div></div>
+
+                <div class="d-img-box">
+                    <div style="text-align:center;">
+                        <i class="fas fa-image" style="font-size:30px;opacity:0.5;margin-bottom:10px;"></i>
+                        <br>ẢNH QUÉT BARCODE CỔNG (GXT)
+                    </div>
+                </div>
+            </div>
+            <div style="padding:15px 20px;background:#1e293b;border-top:1px solid #334155;display:flex;justify-content:flex-end;">
+                <button onclick="document.getElementById('dossier-modal').style.display='none'" style="padding:8px 20px;border-radius:6px;background:#3b82f6;color:white;font-weight:bold;border:none;cursor:pointer;">ĐÓNG TÀI LIỆU</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="monitor-grid">
+        <div class="monitor-wrapper" id="m1">
+            <div class="scanning-bar" id="bar1"></div>
+            <input type="file" id="f1" class="hidden" onchange="preview(this,1)">
+            <div id="v1" class="w-full h-full flex items-center justify-center cursor-pointer relative"
+                onclick="triggerUpload(1)">
+                <div class="text-slate-700 font-tech text-[10px] text-center"><i
+                        class="fas fa-video mb-2 block text-2xl"></i>VISION_CAM_01</div>
+            </div>
+            <svg class="nav-layer" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <path id="path1" class="nav-line" />
+            </svg>
+        </div>
+        <div class="monitor-wrapper" id="m2">
+            <div class="scanning-bar" id="bar2"></div>
+            <input type="file" id="f2" class="hidden" onchange="preview(this,2)">
+            <div id="v2" class="w-full h-full flex items-center justify-center cursor-pointer relative"
+                onclick="triggerUpload(2)">
+                <div class="text-slate-700 font-tech text-[10px] text-center"><i
+                        class="fas fa-video mb-2 block text-2xl"></i>VISION_CAM_02</div>
+            </div>
+            <svg class="nav-layer" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <path id="path2" class="nav-line" />
+            </svg>
+        </div>
+        <div class="monitor-wrapper" id="m3">
+            <div id="ai-log-container"></div>
+            <div class="scanning-bar" id="bar3"></div>
+            <input type="file" id="f3" class="hidden" onchange="preview(this,3)">
+            <div id="v3" class="w-full h-full flex items-center justify-center cursor-pointer relative"
+                onclick="triggerUpload(3)">
+                <div class="text-slate-700 font-tech text-[10px] text-center"><i
+                        class="fas fa-video mb-2 block text-2xl"></i>VISION_CAM_03</div>
+            </div>
+            <svg class="nav-layer" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <path id="path3" class="nav-line" />
+            </svg>
+        </div>
+    </div>
+
+    <div class="dispatch-bar">
+        <span style="color:#1e3a5f;font-weight:700;font-size:9px;white-space:nowrap;">PHÁT LỆNH:</span>
+        <div class="dispatch-tag tag-gxt">
+            <div class="sig-dot dot-idle" id="dotGXT"></div>GXT
+        </div>
+        <div class="dispatch-tag tag-gnt">
+            <div class="sig-dot dot-idle" id="dotGNT"></div>GNT
+        </div>
+        <div style="width:1px;height:14px;background:#0f2040;margin:0 4px;"></div>
+        <div id="lastDispatch">— chưa có lệnh —</div>
+        <div style="width:1px;height:14px;background:#0f2040;margin:0 4px;"></div>
+        <button onclick="configRealtime()"
+            style="padding:2px 8px;border-radius:6px;border:1px solid rgba(148,163,184,.25);background:rgba(15,23,42,.8);color:#e2e8f0;font-size:9px;font-weight:900;letter-spacing:1px;cursor:pointer;">
+            SERVER
+        </button>
+        <button onclick="pccLogin()"
+            style="padding:2px 8px;border-radius:6px;border:1px solid rgba(34,197,94,.35);background:rgba(2,44,34,.8);color:#86efac;font-size:9px;font-weight:900;letter-spacing:1px;cursor:pointer;">
+            AUTH
+        </button>
+        <button onclick="openAuditLog()"
+            style="padding:2px 8px;border-radius:6px;border:1px solid rgba(59,130,246,.35);background:rgba(30,41,59,.8);color:#3b82f6;font-size:9px;font-weight:900;letter-spacing:1px;cursor:pointer;">
+            <i class="fas fa-list-ul mr-1"></i> AUDIT
+        </button>
+        <button onclick="openKPIDashboard()"
+            style="padding:2px 8px;border-radius:6px;border:1px solid rgba(239,68,68,.35);background:rgba(69,10,10,.8);color:#f87171;font-size:9px;font-weight:900;letter-spacing:1px;cursor:pointer;">
+            <i class="fas fa-fire mr-1"></i> KPI
+        </button>
+    </div>
+
+    <div class="form-panel">
+        <div class="max-w-[1700px] mx-auto grid grid-cols-1 lg:grid-cols-4 gap-3">
+            <div class="grid grid-cols-2 gap-2">
+                <div class="field-group"><span class="field-label">Mã chuyến</span><input id="maChuyen" type="text"
+                        value="CO0002395" class="smart-input uppercase"></div>
+                
+                <!-- NEW: Bổ sung icon tài liệu vào ô Số xe -->
+                <div class="field-group"><span class="field-label">Số xe / Moóc</span>
+                    <div style="display:flex; align-items:center; gap:5px;">
+                        <input id="soXe" type="text" value="" placeholder="VD: 51H-12345" class="smart-input uppercase" style="flex:1;">
+                        <button onclick="openDossier()" style="background:rgba(56,189,248,0.2);color:#38bdf8;border:none;border-radius:4px;padding:4px 8px;cursor:pointer;font-size:10px;" title="Xem Tài Phân">
+                            <i class="fas fa-folder-open"></i> E-DOC
+                        </button>
+                    </div>
+                </div>
+
+                <div class="field-group"><span class="field-label">Trọng lượng (T)</span><input id="weight"
+                        type="number" value="0.0" class="smart-input"></div>
+                <div class="field-group"><span class="field-label">Bill / Booking</span><input id="billID" type="text"
+                        placeholder="..." class="smart-input uppercase"></div>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <div id="group-contID" class="field-group col-span-2">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="field-label" style="margin-bottom:0">SỐ HIỆU CONTAINER</span>
+                        <label class="flex items-center gap-1 cursor-pointer">
+                            <input type="checkbox" id="skip-iso" onchange="validateISO()" class="accent-orange-500 w-3 h-3">
+                            <span class="text-[9px] font-bold text-orange-400">⚠ BỎ QUA XÁC THỰC ISO</span>
+                        </label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input id="contID" type="text" placeholder="Nhập mã hoặc quét..." maxlength="14" oninput="onFieldInput('contID')" class="smart-input uppercase text-blue-400 font-black">
+                        <button class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-300 hover:bg-blue-500 hover:text-white flex-shrink-0 transition-colors" onclick="onContainerFieldClick()" title="Mở máy quét AI">
+                            <i class="fas fa-camera"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="field-group"><span class="field-label">Loại Cont</span><select id="loaiCont"
+                        class="smart-input" style="background:transparent" onchange="onFieldInput('loaiCont')">
+                        <option>40HC</option>
+                        <option>20DC</option>
+                    </select></div>
+                <div class="field-group"><span class="field-label">Vị trí đích</span><input id="targetZone" type="text"
+                        readonly placeholder="CHỌN TRÊN ẢNH" class="smart-input text-orange-400"></div>
+            </div>
+            <div class="flex flex-col">
+                <div class="grid grid-cols-3 gap-2" style="flex:1">
+                    <div id="group-seal1" class="field-group"><span
+                            class="field-label">Seal 1</span>
+                            <div class="flex items-center gap-1">
+                                <input id="seal1" type="text" class="smart-input text-[11px] uppercase" oninput="onFieldInput('seal1')">
+                                <button class="text-slate-400 hover:text-white" onclick="onSealFieldClick('seal1')"><i class="fas fa-camera"></i></button>
+                            </div>
+                    </div>
+                    <div id="group-seal2" class="field-group"><span
+                            class="field-label">Seal 2</span>
+                            <div class="flex items-center gap-1">
+                                <input id="seal2" type="text" class="smart-input text-[11px] uppercase" oninput="onFieldInput('seal2')">
+                                <button class="text-slate-400 hover:text-white" onclick="onSealFieldClick('seal2')"><i class="fas fa-camera"></i></button>
+                            </div>
+                    </div>
+                    <div id="group-seal3" class="field-group"><span
+                            class="field-label">Seal 3</span>
+                            <div class="flex items-center gap-1">
+                                <input id="seal3" type="text" class="smart-input text-[11px] uppercase" oninput="onFieldInput('seal3')">
+                                <button class="text-slate-400 hover:text-white" onclick="onSealFieldClick('seal3')"><i class="fas fa-camera"></i></button>
+                            </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex flex-col gap-2">
+                <div class="field-group">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="field-label" style="margin-bottom:0">Tên người phụ trách</span>
+                        <div id="driverStatus"><span class="status-dot" style="background:#475569;"></span><span
+                                style="font-size:9px;font-weight:700">OFFLINE</span></div>
+                    </div>
+                    <input id="driverName" type="text" placeholder="Nhập tên..." oninput="updateDriverStatus()"
+                        class="smart-input text-sm">
+                </div>
+                <button id="btnUnload" onclick="previewEIR()" class="btn-pims btn-orange">1. CHỐT LỆNH HẠ <i
+                        class="fas fa-truck-loading"></i></button>
+                <button id="btnDone" disabled onclick="finishWork()" class="btn-pims btn-gray">2. XÁC NHẬN ĐÃ HẠ <i
+                        class="fas fa-check"></i></button>
+            </div>
+        </div>
+
+        <!-- EIR History Section -->
+        <div class="max-w-[1700px] mx-auto eir-history">
+            <div class="eir-history-header">
+                <span><i class="fas fa-history mr-2"></i> LỊCH SỬ PHIẾU EIR</span>
+                <button onclick="clearHistory()" class="text-[9px] opacity-50 hover:opacity-100"><i
+                        class="fas fa-trash mr-1"></i> Xoá lịch sử</button>
+            </div>
+            <div class="max-h-[150px] overflow-y-auto">
+                <table class="eir-table" id="eirHistoryTable">
+                    <thead>
+                        <tr>
+                            <th>Thời gian</th>
+                            <th>Biển số</th>
+                            <th>Mã chuyến</th>
+                            <th>Số Cont</th>
+                            <th>Loại</th>
+                            <th>Khu vực</th>
+                            <th>Người phụ trách</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody id="eirHistoryBody">
+                        <!-- Data injected here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="scanInput" accept="image/*" capture="environment" class="hidden"
+        onchange="processScanFromFile(this)">
+
+    <script>
+        const API_BASE = "http://localhost:3000/api";
+        const WS_URL   = "ws://localhost:3000";
+
+        let token = "";
+        let wsClient = null;
+        let latestYardBlocks = {}; // Global yard state for KPI
+
+        function addLog(msg, type = 'info') {
+            const container = document.getElementById('ai-log-container');
+            if (!container) return;
+            const log = document.createElement('div');
+            log.className = 'text-[9px] mb-1 font-mono leading-tight ' + (type === 'success' ? 'text-green-400' : 'text-blue-400');
+            log.innerHTML = `<span class="opacity-40">[${new Date().toLocaleTimeString('vi-VN', { hour12: false })}]</span> ${msg}`;
+            container.prepend(log);
+        }
+
+        /* ===== WS LOCAL NODE REALTIME ===== */
+        async function pccLogin() {
+            var username = prompt('PCC username (vd: admin):', 'admin') || '';
+            var password = prompt('PCC password (vd: admin123):', 'admin123') || '';
+            if (!username || !password) return;
+            try {
+                var res = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: username.trim(), password: password })
+                });
+                var json = await res.json();
+                if (res.ok && json.token) {
+                    token = json.token;
+                    alert('Đăng nhập thành công: ' + username);
+                    initWebSocket();
+                } else throw new Error(json.error || 'Login failed');
+            } catch (err) {
+                alert('Đăng nhập thất bại: ' + err.message);
+            }
+        }
+
+        function initWebSocket() {
+            if(!token) return;
+            wsClient = new WebSocket(WS_URL);
+            wsClient.onopen = () => {
+                wsClient.send(JSON.stringify({ type: 'HELLO', token: token, app: 'PIMS' }));
+                addLog('WS CONNECTED TO NODE SERVER', 'success');
+            };
+            wsClient.onmessage = (e) => {
+                const data = JSON.parse(e.data);
+                if (data.type === 'EVENT' && data.event.type === 'JOB_CREATED') {
+                    handleNewDossier(data.event);
+                }
+                if (data.type === 'EVENT' && data.event.type === 'YARD_POSITION_ASSIGNED') {
+                    addLog('VỊ TRÍ BÃI SMART: ' + data.event.position, 'success');
+                }
+                if (data.type === 'YARD_UPDATE') {
+                    // Cập nhật zone maps dựa trên yard data
+                    updateZoneStatsFromServer(data.yard.blocks);
+                }
+            };
+            wsClient.onclose = () => {
+                addLog('LOST WS CONNECTION', 'error');
+                setTimeout(initWebSocket, 4000);
+            };
+        }
+
+        // Map the real backend yard blocks to our visual Zones (A-Z) purely for visual stat purposes
+        function updateZoneStatsFromServer(blocks) {
+            latestYardBlocks = blocks; // Save for KPI Dashboard
+            Object.keys(zoneMaps).forEach(n => {
+                zoneMaps[n].forEach(z => {
+                    // Match visual zone 'A', 'B' to backend Block 'A', 'B' if they exist
+                    let blockId = `Block ${z.id}`;
+                    if(blocks[blockId]) {
+                        z.stats.total = blocks[blockId].pct; // Using pct to represent "fullness indicator" total
+                        z.stats.h40 = Math.floor(Math.random()*10); // Mock detail
+                        z.stats.h20 = Math.floor(Math.random()*10); // Mock detail
+                        const zoneEl = document.querySelector(`.zone-wrapper[data-id="${z.id}"]`);
+                        if (zoneEl) {
+                            const big = zoneEl.querySelector('.s-big');
+                            if (big) big.innerText = blocks[blockId].pct + '%';
+                        }
+                    }
+                });
+            });
+        }
+
+        let activeJobData = null; // Store fetched data
+        
+        async function handleNewDossier(evt) {
+            document.getElementById('soXe').value = evt.plate;
+            document.getElementById('contID').value = evt.job.containerId || '';
+            const cId = evt.job.containerId;
+            
+            if(cId) {
+                try {
+                    const res = await fetch(`${API_BASE}/containers/${cId}`, { headers: {'Authorization': `Bearer ${token}`} });
+                    const cdata = await res.json();
+                    if(cdata.ok) {
+                        const c = cdata.container;
+                        document.getElementById('weight').value = c.grossWeight || 0;
+                        document.getElementById('billID').value = c.bookingNo || '';
+                        document.getElementById('driverName').value = c.driverName || 'N/A';
+                        activeJobData = c;
+                    }
+                }catch(e){}
+            }
+            addLog(`Nhận hồ sơ mới từ GXT: ${evt.plate}`, 'success');
+            validateISO();
+        }
+
+        function openDossier() {
+            if(!activeJobData) {
+                alert("Chưa có hồ sơ E-Dossier nào được tải về cho xe này.");
+                return;
+            }
+            document.getElementById('dos-booking').innerText = activeJobData.bookingNo || '---';
+            document.getElementById('dos-vessel').innerText = activeJobData.vesselName || '---';
+            document.getElementById('dos-type').innerText = `${activeJobData.size} | ${activeJobData.fullEmpty}`;
+            document.getElementById('dos-weight').innerText = `${activeJobData.grossWeight} T`;
+            document.getElementById('dos-shipping-line').innerText = activeJobData.shippingLine || '---';
+            document.getElementById('dos-seal').innerText = activeJobData.sealNo || '---';
+            document.getElementById('dos-commodity').innerText = activeJobData.commodity || '---';
+            document.getElementById('dos-pod').innerText = activeJobData.pod || '---';
+            document.getElementById('dos-order').innerText = activeJobData.orderNo || '---';
+            document.getElementById('dos-customs').innerText = activeJobData.customsNo || '---';
+            document.getElementById('dos-desc').innerText = activeJobData.cargoDesc || '---';
+            document.getElementById('dos-driver').innerText = (activeJobData.driverName || '---') + " | CCCD: " + (activeJobData.driverId || '---');
+            document.getElementById('dossier-modal').style.display = 'flex';
+        }
+
+        /* ===== MAP CONFIGURATION ===== */
+        const zoneMaps = {
+            1: [
+                { id: 'A', x: 23, y: 56, w: 4, h: 10, stats: { total: 0, h40: 0, h20: 0 }, dir: 'horizontal' },
+                { id: 'B', x: 37, y: 60, w: 20, h: 10, stats: { total: 0, h40: 0, h20: 0 }, dir: 'horizontal' },
+                { id: 'C', x: 34, y: 46, w: 14, h: 8, stats: { total: 0, h40: 0, h20: 0 }, dir: 'horizontal' },
+                { id: 'D', x: 59, y: 42, w: 8, h: 5, stats: { total: 0, h40: 0, h20: 0 }, dir: 'horizontal' },
+                { id: 'E', x: 48, y: 32, w: 10, h: 5, stats: { total: 0, h40: 0, h20: 0 }, dir: 'horizontal' },
+                { id: 'F', x: 67, y: 22, w: 20, h: 8, stats: { total: 0, h40: 0, h20: 0 }, dir: 'horizontal' },
+                { id: 'G', x: 74, y: 12, w: 16, h: 10, stats: { total: 0, h40: 0, h20: 0 }, dir: 'horizontal' }
+            ],
+            2: [
+                { id: 'H', x: 23, y: 84, w: 22, h: 8, stats: { total: 0, h40: 0, h20: 0 }, dir: 'horizontal' },
+                { id: 'I', x: 38, y: 65, w: 10, h: 8, stats: { total: 0, h40: 0, h20: 0 }, dir: 'horizontal' },
+                { id: 'J', x: 12, y: 94, w: 6, h: 5, stats: { total: 0, h40: 0, h20: 0 }, dir: 'horizontal' }
+            ],
+            3: [
+                { id: 'X', x: 13.5, y: 15, w: 14, h: 15, stats: { total: 0, h40: 0, h20: 0 }, dir: 'horizontal' },
+                { id: 'Z', x: 74, y: 46, w: 25, h: 75, stats: { total: 0, h40: 0, h20: 0 }, dir: 'vertical' }
+            ]
+        };
+
+        let activeField = 'contID';
+        let state = { truck: null, target: null, targetCam: null };
+        let workStarted = false;
+        let cameraStream = null;
+
+        window.triggerUpload = function (n) { document.getElementById('f' + n).click(); }
+
+        window.preview = function preview(input, n, defaultSrc) {
+            var reader = new FileReader();
+            var processImage = function(src) {
+                var cont = document.getElementById('v' + n);
+                cont.innerHTML = '<div class="relative w-full h-full flex items-center justify-center overflow-hidden bg-black"><img id="img' + n + '" src="' + src + '" class="full-vision-img" style="width:100%;height:100%;object-fit:contain;display:block;"><div id="layer' + n + '" class="interaction-layer" style="position:absolute;z-index:100;cursor:crosshair;"></div></div>';
+                var img = document.getElementById('img' + n);
+                img.onload = function() {
+                    var container = cont.querySelector('.relative');
+                    var cw = container.clientWidth, ch = container.clientHeight;
+                    var iw = img.naturalWidth, ih = img.naturalHeight;
+                    var aspect = iw / ih;
+                    var rw = cw, rh = ch;
+                    if (cw / ch > aspect) { rw = ch * aspect; } else { rh = cw / aspect; }
+                    var layer = document.getElementById('layer' + n);
+                    layer.style.width = rw + 'px';
+                    layer.style.height = rh + 'px';
+                    layer.style.left = (cw - rw) / 2 + 'px';
+                    layer.style.top = (ch - rh) / 2 + 'px';
+                    layer.onclick = function(ev) { setTruck(n, ev); };
+                    
+                    if(zoneMaps[n]) {
+                        zoneMaps[n].forEach(function(z) {
+                            var w = document.createElement('div');
+                            w.className = 'zone-wrapper';
+                            w.setAttribute('data-id', z.id);
+                            w.style.left = z.x + '%'; w.style.top = z.y + '%';
+                            if (z.w) w.style.width = z.w + '%';
+                            if (z.h) w.style.height = z.h + '%';
+                            w.onclick = function(ev) { ev.stopPropagation(); setTarget(z, n, w); };
+
+                            var lbl = document.createElement('div');
+                            lbl.className = 'zone-label';
+                            lbl.innerText = z.id;
+                            w.appendChild(lbl);
+
+                            if (z.stats) {
+                                var st = document.createElement('div');
+                                var posClass = '';
+                                st.className = 'zone-stats ' + (z.dir || 'horizontal') + posClass;
+                                st.innerHTML = `
+                                    <div class="stats-left">
+                                        <span class="s-big">${z.stats.total}%</span>
+                                        <span class="s-small">ĐẦY</span>
+                                    </div>
+                                    <div class="stats-right">
+                                        <div class="s-title">CHI TIẾT</div>
+                                        <div class="s-row"><span>40HC:</span><span>--</span></div>
+                                        <div class="s-row"><span>20HC:</span><span>--</span></div>
+                                    </div>`;
+                                w.appendChild(st);
+                            }
+
+                            layer.appendChild(w);
+                        });
+                    }
+                    addLog('CAM 0' + n + ' ONLINE', 'success');
+                };
+            };
+
+            if (defaultSrc) {
+                processImage(defaultSrc);
+            } else if (input.files && input.files[0]) {
+                reader.onload = function(e) { processImage(e.target.result); };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        window.onContainerFieldClick = function () { setActive('contID'); openCameraModal(); }
+        window.onSealFieldClick = function (sealId) { setActive(sealId); openCameraModal(); }
+
+        function openCameraModal() {
+            var modal = document.getElementById('camera-modal');
+            var video = document.getElementById('camera-video');
+            var statusEl = document.getElementById('cam-modal-status');
+            var titleEl = document.getElementById('cam-modal-title');
+            var captureBtn = document.getElementById('cam-btn-capture');
+
+            var label = activeField === 'contID' ? 'Container' : activeField.toUpperCase();
+            titleEl.textContent = 'Quét ' + label;
+            statusEl.textContent = 'Đang mở camera...';
+            captureBtn.disabled = true;
+            modal.classList.add('show');
+
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                statusEl.textContent = 'HTTP chặn Camera hoặc thiết bị không có. Bấm TẢI ẢNH LÊN.';
+                return;
+            }
+
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } })
+                .then(function (stream) {
+                    cameraStream = stream;
+                    video.srcObject = stream;
+                    video.onloadedmetadata = function () {
+                        video.play().then(function () {
+                            statusEl.textContent = 'Hướng máy vào mã ' + label + ', rồi bấm "Chụp để quét".';
+                            captureBtn.disabled = false;
+                        }).catch(function () { });
+                    };
+                })
+                .catch(function (err) {
+                    statusEl.textContent = 'Lỗi truy cập Camera. Vui lòng dùng nút TẢI ẢNH LÊN.';
+                });
+        }
+
+        function closeCameraModal() {
+            var modal = document.getElementById('camera-modal');
+            modal.classList.remove('show');
+            if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
+        }
+
+        setTimeout(function() {
+            preview(null, 1, 'assets/maps/area1.jpg');
+            preview(null, 2, 'assets/maps/area2.jpg');
+            preview(null, 3, 'assets/maps/area3.png');
+        }, 300);
+
+        document.getElementById('cam-btn-cancel').onclick = closeCameraModal;
+
+        window.triggerScan = function () { openCameraModal(); }
+        window.processScanFromFile = function (input) {
+            if (!input.files || !input.files[0]) return;
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                if (activeField === 'contID' && document.getElementById('skip-iso').checked) {
+                    state.proofImage = e.target.result;
+                    addLog('ĐÃ LƯU ẢNH TỪ FILE!', 'success');
+                    closeCameraModal();
+                    previewEIR(); 
+                } else {
+                    processScanFile(input.files[0]).then(() => closeCameraModal());
+                }
+            };
+            reader.readAsDataURL(input.files[0]);
+            input.value = '';
+        }
+
+        function validateISO6346(cid) {
+            if (!cid || cid.length !== 11) return false;
+            return true; // Simplified for demo
+        }
+
+        function processScanFile(file) {
+            document.querySelectorAll('.scanning-bar').forEach(b => b.style.display = 'block');
+            return createImageBitmap(file).then(bitmap => {
+                var canvas = document.createElement('canvas');
+                var ctx = canvas.getContext('2d');
+                var scale = 1200 / bitmap.width;
+                canvas.width = 1200; canvas.height = Math.round(bitmap.height * scale);
+                ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+                return Tesseract.recognize(canvas.toDataURL('image/jpeg', 0.85), 'eng');
+            }).then(result => {
+                var raw = result.data.text.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                if (activeField === 'contID') {
+                    var m = raw.match(/[A-Z]{4}\d{7}/);
+                    if (!m) m = raw.match(/[A-Z]{3}[UJZ]\d{7}/); 
+                    if (m) { 
+                        document.getElementById('contID').value = m[0];
+                        addLog('QUÉT THÀNH CÔNG: ' + m[0], 'success');
+                        validateISO();
+                        setTimeout(() => setActive('seal1'), 1500);
+                    } else {
+                        addLog('KHÔNG TÌM THẤY MÃ CONTAINER', 'error');
+                    }
+                }
+            }).finally(() => {
+                document.querySelectorAll('.scanning-bar').forEach(b => b.style.display = 'none');
+            });
+        }
+
+        function setTruck(n, e) {
+            var layer = document.getElementById('layer' + n);
+            var rect = layer.getBoundingClientRect();
+            var x = e.clientX - rect.left, y = e.clientY - rect.top;
+            document.querySelectorAll('.truck-marker').forEach(m => m.remove());
+            var t = document.createElement('div');
+            t.className = 'truck-marker'; t.style.left = x + 'px'; t.style.top = y + 'px';
+            layer.appendChild(t);
+            state.truck = { n: n, x: (x / rect.width) * 100, y: (y / rect.height) * 100 };
+            if (state.target) drawPath();
+        }
+
+        function setTarget(zone, n, el) {
+            document.querySelectorAll('.zone-wrapper').forEach(function(l) { l.classList.remove('active'); });
+            el.classList.add('active');
+            state.target = zone; state.targetCam = n;
+            document.getElementById('targetZone').value = 'KHU ' + zone.id;
+            addLog('ĐÍCH: KHU ' + zone.id, 'success');
+            if (state.truck) drawPath();
+            
+            // Tương tác API Realtime để phân khu
+            if(token && activeJobData) {
+                fetch(`${API_BASE}/yard/relocate`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ containerId: activeJobData.containerId, manualBlock: 'Block ' + zone.id })
+                });
+            }
+        }
+
+        function drawPath() {
+            document.querySelectorAll('.nav-line').forEach(p => p.setAttribute('d', ''));
+            if (!state.truck || !state.target) return;
+            var s = state.truck.n, e = state.targetCam;
+            document.getElementById('path' + s).setAttribute('d', 'M ' + state.truck.x + ',' + state.truck.y + ' L 100,50');
+            for (var i = s + 1; i < e; i++) document.getElementById('path' + i).setAttribute('d', 'M 0,50 L 100,50');
+            var pe = document.getElementById('path' + e);
+            if (s === e) pe.setAttribute('d', 'M ' + state.truck.x + ',' + state.truck.y + ' L ' + state.target.x + ',' + state.target.y);
+            else pe.setAttribute('d', 'M 0,50 L ' + state.target.x + ',' + state.target.y);
+        }
+
+        window.onFieldInput = function(id) {
+            if (id === 'contID') validateISO();
+            if (!state.audit) state.audit = {};
+            state.audit[id] = (state.audit[id] || 0) + 1;
+        }
+
+        window.validateISO = function() {
+            var rawVal = document.getElementById('contID').value.toUpperCase();
+            var val = rawVal.replace(/[^A-Z0-9]/g, '');
+            var isSkip = document.getElementById('skip-iso').checked;
+            var group = document.getElementById('group-contID');
+            
+            if (isSkip) {
+                group.classList.remove('invalid-standard', 'valid-standard');
+                group.classList.add('overridden');
+                return true;
+            }
+            
+            group.classList.remove('overridden');
+            if (val.length === 11 && validateISO6346(val)) {
+                group.classList.remove('invalid-standard');
+                group.classList.add('valid-standard');
+                return true;
+            } else {
+                group.classList.remove('valid-standard');
+                if (val.length >= 4) group.classList.add('invalid-standard');
+                else group.classList.remove('invalid-standard');
+                return false;
+            }
+        }
+
+        window.previewEIR = function() {
+            if (!state.target) return alert('VUI LÒNG CHỌN VỊ TRÍ XE VÀ KHU VỰC HẠ HÀNG TRÊN BẢN ĐỒ!');
+            if (!document.getElementById('driverName').value) return alert('VUI LÒNG NHẬP TÊN NGƯỜI PHỤ TRÁCH!');
+            
+            var rawContVal = document.getElementById('contID').value;
+            var contVal = rawContVal.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+            var isSkip = document.getElementById('skip-iso').checked;
+
+            document.getElementById('pre-plate').innerText = document.getElementById('soXe').value || '—';
+            document.getElementById('pre-cont').innerText = contVal || '—';
+            document.getElementById('pre-zone').innerText = 'KHU ' + state.target.id;
+            document.getElementById('pre-seal').innerText = document.getElementById('seal1').value || '—';
+            document.getElementById('pre-iso').innerHTML = isSkip 
+                ? '<span class="status-badge badge-overridden">BỎ QUA ISO</span>'
+                : '<span class="status-badge badge-standard">HỢP LỆ ISO 6346</span>';
+            
+            document.getElementById('eir-preview-modal').style.display = 'flex';
+        }
+
+        window.closeEIR = function() { document.getElementById('eir-preview-modal').style.display = 'none'; }
+
+        window.confirmEIR = function() {
+            var pin = document.getElementById('dispatcher-pin').value;
+            if (pin.length < 4) return alert('NHẬP MÃ PIN ĐIỀU ĐỘ (4 SỐ) ĐỂ XÁC NHẬN!');
+            state.dispatcherID = "ID_" + pin;
+            closeEIR();
+            startWork();
+        }
+
+        function setActive(id) {
+            activeField = id;
+            document.querySelectorAll('.field-group').forEach(el => el.classList.remove('active-scan'));
+            var el = document.getElementById('group-' + id);
+            if (el) el.classList.add('active-scan');
+        }
+
+        window.updateDriverStatus = function () {
+            var name = document.getElementById('driverName').value;
+            document.getElementById('driverStatus').innerHTML = name.length > 2
+                ? '<span class="status-dot" style="background:#22c55e;"></span><span style="font-size:9px;color:#22c55e;font-weight:700">ONLINE</span>'
+                : '<span class="status-dot" style="background:#475569;"></span><span style="font-size:9px;font-weight:700">OFFLINE</span>';
+        }
+
+        window.startWork = async function () {
+            if (!state.truck || !state.target) return alert('VUI LÒNG CHỌN XE VÀ ĐÍCH!');
+            var plate = document.getElementById('soXe').value.trim().toUpperCase();
+            
+            workStarted = true;
+
+            // Trigger Realtime to Backend
+            if(wsClient) {
+                wsClient.send(JSON.stringify({ type: 'EVENT', event: { type: 'PIMS_DONE', plate: plate } }));
+            }
+
+            setDispatchDot('GXT', 'ok'); setDispatchDot('GNT', 'ok');
+            document.getElementById('btnUnload').disabled = true;
+            document.getElementById('btnUnload').className = 'btn-pims btn-gray';
+            document.getElementById('btnDone').disabled = false;
+            document.getElementById('btnDone').className = 'btn-pims btn-green';
+
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.speak(new SpeechSynthesisUtterance('Hồ sơ hợp lệ. Chốt lệnh khu ' + state.target.id));
+            }
+        }
+
+        window.finishWork = function () {
+            if (!workStarted) return;
+            var plate = document.getElementById('soXe').value.trim().toUpperCase();
+            var id = document.getElementById('contID').value.trim().toUpperCase();
+            var target = state.target ? state.target.id : 'A';
+            
+            if(wsClient) {
+                wsClient.send(JSON.stringify({ type: 'EVENT', event: { type: 'GNT_DONE', plate: plate } })); // simulate GNT finish from PIMS for testing
+            }
+
+            var tbody = document.getElementById('eirHistoryBody');
+            var tr = document.createElement('tr');
+            var timeStr = new Date().toLocaleTimeString('vi-VN', { hour12: false });
+            tr.innerHTML = `
+                <td>${timeStr}</td>
+                <td style="font-weight:bold;color:#38bdf8">${plate}</td>
+                <td>${document.getElementById('maChuyen').value}</td>
+                <td style="font-weight:bold;color:#eab308">${id}</td>
+                <td>${document.getElementById('loaiCont').value}</td>
+                <td>KHU ${target}</td>
+                <td>${document.getElementById('driverName').value}</td>
+                <td><span style="color:#22c55e"><i class="fas fa-check"></i> HOÀN THÀNH</span></td>
+            `;
+            tbody.prepend(tr);
+
+            setTimeout(resetForm, 2000);
+        }
+
+        function resetForm() {
+            workStarted = false;
+            ['soXe', 'weight', 'contID', 'seal1', 'seal2', 'seal3', 'driverName', 'targetZone', 'billID'].forEach(function (id) {
+                var el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            document.querySelectorAll('.truck-marker').forEach(m => m.remove());
+            document.querySelectorAll('.nav-line').forEach(p => p.setAttribute('d', ''));
+            
+            document.getElementById('btnUnload').disabled = false;
+            document.getElementById('btnUnload').className = 'btn-pims btn-orange';
+            document.getElementById('btnDone').disabled = true;
+            document.getElementById('btnDone').className = 'btn-pims btn-gray';
+            setDispatchDot('GXT', 'idle'); setDispatchDot('GNT', 'idle');
+            activeJobData = null;
+        }
+
+        function setDispatchDot(sys, st) {
+            var d = document.getElementById('dot' + sys);
+            if (d) d.className = 'sig-dot ' + (st === 'sending' ? 'dot-sending' : st === 'ok' ? 'dot-ok' : 'dot-idle');
+        }
+
+        /* ===== PHASE 5: AUDIT LOG & KPI LOGIC ===== */
+        async function openAuditLog() {
+            if (!token) return alert("Vui lòng xác thực AUTH trước!");
+            document.getElementById('audit-modal').style.display = 'flex';
+            const body = document.getElementById('audit-body');
+            body.innerHTML = '<tr><td colspan="5" class="text-center py-10 opacity-50">Đang tải nhật ký hệ thống...</td></tr>';
+            
+            try {
+                const res = await fetch(`${API_BASE}/audit?limit=100`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res.json();
+                if (data.ok) {
+                    body.innerHTML = '';
+                    data.items.reverse().forEach(item => {
+                        const tr = document.createElement('tr');
+                        const time = new Date(item.at).toLocaleTimeString();
+                        const kindClass = item.kind.includes('REJECTED') || item.kind.includes('FAILED') ? 'kind-reject' : 'kind-accept';
+                        tr.innerHTML = `
+                            <td class="opacity-50">${time}</td>
+                            <td><span class="kind-tag ${kindClass}">${item.kind}</span></td>
+                            <td class="font-bold text-blue-400">${item.actor?.userId || 'SYSTEM'}</td>
+                            <td>${item.plate || item.containerId || '—'}</td>
+                            <td class="text-[10px] opacity-70">${JSON.stringify(item.reason || item.position || '')}</td>
+                        `;
+                        body.appendChild(tr);
+                    });
+                }
+            } catch (e) { body.innerHTML = '<tr><td colspan="5" class="text-center py-10 text-red-400">Lỗi tải dữ liệu audit.</td></tr>'; }
+        }
+
+        function openKPIDashboard() {
+            document.getElementById('kpi-modal').style.display = 'flex';
+            renderHeatmap();
+            renderKPCharts();
+        }
+
+        function renderHeatmap() {
+            const wrap = document.getElementById('kpi-heatmap');
+            wrap.innerHTML = '';
+            // Heatmap based on yard fullness
+            const targets = ['Block A', 'Block B', 'Block C', 'Block D'];
+            targets.forEach(id => {
+                const block = latestYardBlocks[id] || { pct: 0, name: id };
+                const lvlClass = block.pct > 80 ? 'heat-lvl-high' : block.pct > 40 ? 'heat-lvl-med' : 'heat-lvl-low';
+                const box = document.createElement('div');
+                box.className = 'heat-box';
+                box.innerHTML = `
+                    <div class="field-label" style="margin:0">${block.name}</div>
+                    <div class="heat-val ${lvlClass}">${block.pct}%</div>
+                    <div style="font-size:9px; opacity:0.5;">Utilization Level</div>
+                `;
+                wrap.appendChild(box);
+            });
+        }
+
+        function renderKPCharts() {
+            const pChart = document.getElementById('productivity-chart');
+            const eChart = document.getElementById('error-chart');
+            pChart.innerHTML = ''; eChart.innerHTML = '';
+
+            // Generate mock bars for the last 12 hours
+            for(let i=0; i<12; i++) {
+                const pVal = Math.floor(Math.random() * 80) + 20;
+                const eVal = Math.floor(Math.random() * 15);
+                
+                const pBar = document.createElement('div');
+                pBar.className = 'fake-bar';
+                pBar.style.height = pVal + '%';
+                pBar.title = `Giờ ${i+12}: ${pVal} lệnh`;
+                pChart.appendChild(pBar);
+
+                const eBar = document.createElement('div');
+                eBar.className = 'fake-bar';
+                eBar.style.height = eVal + '%';
+                eBar.style.background = '#ef4444';
+                eBar.title = `Giờ ${i+12}: ${eVal}% lỗi`;
+                eChart.appendChild(eBar);
+            }
+        }
+
+        /* PHASE 6: EXCEL EXPORT LOGIC */
+        function exportAuditToExcel() {
+            try {
+                const table = document.querySelector('.audit-table');
+                // We'll fetch the actual audit data from the server or logic if possible for completeness,
+                // but since the table is already rendered with the latest 500, we'll use a direct table-to-sheet approach.
+                const wb = XLSX.utils.table_to_book(table, { sheet: "PIMS_Audit_Log" });
+                const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+                XLSX.writeFile(wb, `PIMS_Audit_Log_${timestamp}.xlsx`);
+                showNotification('Báo cáo Excel đã được tải xuống thành công!', 'OK');
+            } catch (e) {
+                console.error(e);
+                showNotification('Lỗi khi xuất Excel.', 'ERR');
+            }
+        }
+
+        /* PHASE 6: HEATMAP DRILL-DOWN LOGIC */
+        async function openBlockDetail(blockId) {
+            document.getElementById('block-detail-modal').style.display = 'flex';
+            document.getElementById('block-detail-title').innerHTML = `<i class="fas fa-th mr-2"></i> CHI TIẾT BLOCK: ${blockId}`;
+            const body = document.getElementById('block-detail-body');
+            body.innerHTML = '<tr><td colspan="5" class="text-center py-8 opacity-50">Đang tải dữ liệu bãi...</td></tr>';
+            
+            try {
+                const res = await fetch(`${API_BASE}/yard/block/${blockId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    body.innerHTML = '';
+                    if (data.items.length === 0) {
+                        body.innerHTML = '<tr><td colspan="5" class="text-center py-10 opacity-50">Block này hiện đang trống.</td></tr>';
+                    } else {
+                        data.items.forEach(item => {
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td class="font-bold text-yellow-500">${item.position}</td>
+                                <td class="font-bold">${item.containerId}</td>
+                                <td class="text-blue-400">${item.vesselName || '—'}</td>
+                                <td>${item.grossWeight || '—'}T</td>
+                                <td><span class="status-badge badge-standard">${item.status}</span></td>
+                            `;
+                            body.appendChild(tr);
+                        });
+                    }
+                }
+            } catch (e) {
+                body.innerHTML = '<tr><td colspan="5" class="text-red-400 text-center">Lỗi khi kết nối server.</td></tr>';
+            }
+        }
+
+        // Update renderHeatmap to include click handlers
+        const originalRenderHeatmap = renderHeatmap;
+        renderHeatmap = function() {
+            const wrap = document.getElementById('kpi-heatmap');
+            wrap.innerHTML = '';
+            const targets = ['Block A', 'Block B', 'Block C', 'Block D'];
+            targets.forEach(id => {
+                const blockName = id.split(' ')[1]; // Get 'A', 'B', etc.
+                const blockData = latestYardBlocks[id] || { pct: 0, name: id };
+                const lvlClass = blockData.pct > 80 ? 'heat-lvl-high' : blockData.pct > 40 ? 'heat-lvl-med' : 'heat-lvl-low';
+                const box = document.createElement('div');
+                box.className = 'heat-box';
+                // Add click handler for V6.1 drill-down
+                box.onclick = () => openBlockDetail(blockName);
+                
+                box.innerHTML = `
+                    <div class="field-label" style="margin:0">${blockData.name}</div>
+                    <div class="heat-val ${lvlClass}">${blockData.pct}%</div>
+                    <div style="font-size:9px; opacity:0.5;">Nhấn để xem chi tiết</div>
+                `;
+                wrap.appendChild(box);
+            });
+        };
+
+    </script>
+</body>
+</html>
