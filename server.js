@@ -11,6 +11,7 @@ import rateLimit from "express-rate-limit";
 
 // ── APP SETUP ──────────────────────────────────────────────
 const app = express();
+app.use(express.static(__dirname));
 const ALLOWED_ORIGINS = String(process.env.PGG_ALLOWED_ORIGINS || "")
   .split(",").map(s => s.trim()).filter(Boolean);
 
